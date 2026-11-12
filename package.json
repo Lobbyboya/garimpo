@@ -1,0 +1,41 @@
+{
+  "name": "recomendador-de-bandas",
+  "productName": "Recomendador de bandas",
+  "version": "1.0.0",
+  "description": "App de desktop que recomenda bandas a partir dos seus top artistas do Last.fm.",
+  "author": "Renan",
+  "main": "src/main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "icone": "electron scripts/gerar-icone.js",
+    "instalador": "electron-builder --win nsis"
+  },
+  "build": {
+    "appId": "local.renan.recomendador-de-bandas",
+    "productName": "Recomendador de bandas",
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "Recomendador de bandas",
+      "runAfterFinish": false
+    }
+  },
+  "devDependencies": {
+    "electron": "^45.3.1",
+    "electron-builder": "^26.18.0"
+  }
+}

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Identidade visual - Recomendador de bandas</title>
+<style>
+  body { margin:0; padding:32px; background:#0f1115; color:#e8eaf0; font-family: system-ui, "Segoe UI", Roboto, sans-serif; }
+  h1 { font-size:1.6rem; margin:0 0 4px; }
+  h2 { font-size:.8rem; letter-spacing:.08em; text-transform:uppercase; color:#9aa0ad; margin:36px 0 12px; font-weight:600; }
+  p { color:#9aa0ad; line-height:1.5; max-width:620px; margin:0; }
+  .linha { display:flex; flex-wrap:wrap; gap:20px; align-items:flex-end; }
+  .icone { display:flex; flex-direction:column; align-items:center; gap:8px; font-size:.75rem; color:#9aa0ad; }
+  .claro { background:#e8eaf0; padding:20px; border-radius:16px; }
+  .cores { display:grid; grid-template-columns:repeat(auto-fill, minmax(130px, 1fr)); gap:12px; max-width:760px; }
+  .cor { border:1px solid #262a33; border-radius:12px; overflow:hidden; background:#181b22; font-size:.8rem; }
+  .cor i { display:block; height:64px; }
+  .cor b { display:block; padding:8px 10px 0; }
+  .cor span { display:block; padding:2px 10px 10px; color:#9aa0ad; font-family:Consolas, monospace; }
+  .tipos > div { margin-bottom:10px; }
+  .card { background:#181b22; border:1px solid #262a33; border-radius:12px; padding:14px; width:260px; }
+  .card h3 { margin:0 0 6px; font-size:1rem; }
+  .barra { height:4px; background:#22262f; border-radius:2px; margin:6px 0 10px; }
+  .barra div { height:100%; width:70%; background:#1db954; border-radius:2px; }
+  .seeds span { font-size:.78rem; background:#22262f; padding:3px 8px; border-radius:6px; color:#9aa0ad; margin-right:6px; }
+  .botao { background:#1db954; color:#06140b; border-radius:8px; padding:9px 16px; font-weight:600; font-size:.9rem; display:inline-block; }
+  .chip { border:1px solid #262a33; background:#181b22; border-radius:999px; padding:6px 14px; font-size:.9rem; display:inline-block; }
+  .link { color:#1db954; font-weight:600; font-size:.9rem; }
+</style>
+</head>
+<body>
+  <h1>Recomendador de bandas</h1>
+  <p>Identidade visual do app: escura, discreta, com um único verde de destaque.</p>
+
+  <h2>Ícone</h2>
+  <p>Um disco de vinil com selo verde e dois brilhos: a música que você já ouve e a descoberta de algo novo.</p>
+  <div class="linha" style="margin-top:16px">
+    <div class="icone"><img src="icon.svg" width="160" height="160" alt="">256 px</div>
+    <div class="icone"><img src="icon.svg" width="64" height="64" alt="">64 px</div>
+    <div class="icone"><img src="icon.svg" width="32" height="32" alt="">32 px</div>
+    <div class="icone"><img src="icon.svg" width="16" height="16" alt="">16 px</div>
+    <div class="icone"><div class="claro"><img src="icon.svg" width="96" height="96" alt=""></div>fundo claro</div>
+  </div>
+
+  <h2>Cores</h2>
+  <div class="cores">
+    <div class="cor"><i style="background:#0f1115"></i><b>Fundo</b><span>#0f1115</span></div>
+    <div class="cor"><i style="background:#181b22"></i><b>Cartão</b><span>#181b22</span></div>
+    <div class="cor"><i style="background:#262a33"></i><b>Linha</b><span>#262a33</span></div>
+    <div class="cor"><i style="background:#e8eaf0"></i><b>Texto</b><span>#e8eaf0</span></div>
+    <div class="cor"><i style="background:#9aa0ad"></i><b>Texto fraco</b><span>#9aa0ad</span></div>
+    <div class="cor"><i style="background:#1db954"></i><b>Destaque</b><span>#1db954</span></div>
+    <div class="cor"><i style="background:#3ee07a"></i><b>Brilho</b><span>#3ee07a</span></div>
+    <div class="cor"><i style="background:#e0a84a"></i><b>Aviso</b><span>#e0a84a</span></div>
+    <div class="cor"><i style="background:#ef6b6b"></i><b>Erro</b><span>#ef6b6b</span></div>
+  </div>
+
+  <h2>Tipografia</h2>
+  <div class="tipos">
+    <div style="font-size:1.6rem; font-weight:700">Título — 26 px, negrito</div>
+    <div style="font-size:1rem; font-weight:700">Nome do artista — 16 px, negrito</div>
+    <div style="font-size:.85rem; color:#9aa0ad">Texto de apoio — 14 px, cinza. Fonte do sistema (Segoe UI no Windows).</div>
+  </div>
+
+  <h2>Componentes</h2>
+  <div class="linha" style="align-items:flex-start">
+    <div class="card">
+      <h3>Knocked Loose</h3>
+      <div class="barra"><div></div></div>
+      <p style="font-size:.85rem; margin-bottom:10px">Parecido com 2 artistas seus:</p>
+      <div class="seeds"><span>Turnstile</span><span>Deftones</span></div>
+      <p style="margin-top:12px"><span class="link">Spotify →</span></p>
+    </div>
+    <div>
+      <div class="botao">Gerar recomendações</div>
+      <div style="margin-top:14px"><span class="chip">Rock pesado e metal</span></div>
+    </div>
+  </div>
+</body>
+</html>

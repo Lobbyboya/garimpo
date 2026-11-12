@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' https://i.scdn.co https://*.dzcdn.net">
+<title>Recomendador de bandas</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Recomendador de bandas</h1>
+    <div class="sub" id="sub">Carregando...</div>
+  </div>
+  <button class="botao secundario" id="abrirConfig">Configurações</button>
+</header>
+
+<nav class="abas">
+  <button class="aba ativa" data-aba="lastfm">Do Last.fm</button>
+  <button class="aba" data-aba="curadas">Curadas</button>
+</nav>
+
+<input type="search" id="busca" placeholder="Buscar por nome, gênero ou artista seu...">
+
+<!-- Recomendações automáticas -->
+<section id="painel-lastfm">
+  <div class="controles">
+    <label>Período
+      <select id="periodo">
+        <option value="overall">Desde sempre</option>
+        <option value="12month">Últimos 12 meses</option>
+        <option value="6month">Últimos 6 meses</option>
+        <option value="3month">Últimos 3 meses</option>
+        <option value="1month">Último mês</option>
+        <option value="7day">Últimos 7 dias</option>
+      </select>
+    </label>
+    <label>Usar os top
+      <select id="sementes">
+        <option value="10">10 artistas</option>
+        <option value="20" selected>20 artistas</option>
+        <option value="30">30 artistas</option>
+        <option value="50">50 artistas</option>
+      </select>
+    </label>
+    <button class="botao" id="gerar">Gerar recomendações</button>
+  </div>
+  <div class="status" id="status"></div>
+  <div class="grid" id="grid-lastfm"></div>
+</section>
+
+<!-- Recomendações curadas (src/dados.json) -->
+<section id="painel-curadas" hidden>
+  <div class="filters" id="clusters"></div>
+  <div class="grid" id="grid-curadas"></div>
+</section>
+
+<div class="empty" id="empty">Nada encontrado com esse filtro.</div>
+
+<dialog id="config">
+  <form method="dialog" id="formConfig">
+    <h2>Configurações</h2>
+    <label>Usuário do Last.fm
+      <input type="text" id="cfgUsuario" autocomplete="off" required>
+    </label>
+    <label>Chave de API do Last.fm
+      <input type="password" id="cfgChave" autocomplete="off" placeholder="Deixe vazio para manter a atual">
+    </label>
+    <p class="ajuda">
+      Crie uma chave grátis em
+      <a href="https://www.last.fm/api/account/create" target="_blank">last.fm/api/account/create</a>.
+      Ela fica salva só neste PC.
+    </p>
+    <div class="acoes">
+      <button class="botao secundario" value="cancelar" formnovalidate>Cancelar</button>
+      <button class="botao" value="salvar" id="salvarConfig">Salvar</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="renderer.js"></script>
+</body>
+</html>

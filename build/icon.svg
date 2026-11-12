@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="fundo" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#232834"/>
+      <stop offset="1" stop-color="#0b0d11"/>
+    </linearGradient>
+    <radialGradient id="disco" cx="0.42" cy="0.38" r="0.7">
+      <stop offset="0" stop-color="#262b36"/>
+      <stop offset="1" stop-color="#0e1014"/>
+    </radialGradient>
+    <linearGradient id="selo" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3ee07a"/>
+      <stop offset="1" stop-color="#14a148"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Fundo arredondado -->
+  <rect x="16" y="16" width="480" height="480" rx="112" fill="url(#fundo)"/>
+
+  <!-- Disco de vinil -->
+  <circle cx="232" cy="282" r="172" fill="url(#disco)" stroke="#000" stroke-opacity=".35" stroke-width="4"/>
+  <g fill="none" stroke="#3a404d" stroke-width="5">
+    <circle cx="232" cy="282" r="148"/>
+    <circle cx="232" cy="282" r="124"/>
+    <circle cx="232" cy="282" r="100"/>
+  </g>
+  <!-- Brilho -->
+  <path d="M120 200 A140 140 0 0 1 200 146" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="10" stroke-linecap="round"/>
+  <path d="M344 364 A140 140 0 0 1 290 412" fill="none" stroke="#fff" stroke-opacity=".10" stroke-width="10" stroke-linecap="round"/>
+
+  <!-- Selo central -->
+  <circle cx="232" cy="282" r="64" fill="url(#selo)"/>
+  <circle cx="232" cy="282" r="13" fill="#0b0d11"/>
+
+  <!-- Brilhos de "recomendação" -->
+  <path d="M398 62 Q398 132 468 132 Q398 132 398 202 Q398 132 328 132 Q398 132 398 62 Z" fill="#3ee07a"/>
+  <path d="M452 196 Q452 226 482 226 Q452 226 452 256 Q452 226 422 226 Q452 226 452 196 Z" fill="#a6f0c0"/>
+</svg>

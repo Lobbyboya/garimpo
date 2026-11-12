@@ -1,0 +1,314 @@
+{
+  "conferidoEm": "2026-11-12",
+  "clusters": {
+    "Jazz e hip hop instrumental": "Seus artistas Nujabes, Casiopea, Tsutchie, Jazz Liberatorz, Uyama Hiroto, Yussef Dayes e Jazzbois",
+    "Rock pesado e metal": "Seus artistas Turnstile, Deftones, Linkin Park, Korn, Trivium, Pantera, Alice in Chains e Metallica",
+    "Trap e rap latino/brasileiro": "Seus artistas Matuê, Ca7riel & Paco Amoroso, Nitsua e LJONES",
+    "Hip hop clássico e alternativo": "Seus artistas The Pharcyde, Pete Rock e Tyler, The Creator"
+  },
+  "recs": [
+    {
+      "name": "Shing02",
+      "spotify": "0FB6beTn4vescDdnHeCUm9",
+      "img": "https://i.scdn.co/image/ab676161000051748da5ab99c1771741399b4e99",
+      "cluster": "Jazz e hip hop instrumental",
+      "genre": "Hip hop japonês",
+      "why": "Parceiro de Nujabes em vários trabalhos; mesma estética de beats e samples.",
+      "seeds": [
+        "Nujabes",
+        "Tsutchie"
+      ]
+    },
+    {
+      "name": "Tomppabeats",
+      "spotify": "0Q2Tc5yZFJpumLMc7Yz4e4",
+      "img": "https://i.scdn.co/image/ab67616100005174caa88f6b6c73e959f4fd5027",
+      "cluster": "Jazz e hip hop instrumental",
+      "genre": "Lo-fi hip hop",
+      "why": "Beats suaves de jazz e soul, bem próximos da vibe de Nujabes.",
+      "seeds": [
+        "Nujabes",
+        "Jazz Liberatorz"
+      ]
+    },
+    {
+      "name": "Hiatus Kaiyote",
+      "spotify": "43JlwunhXm1oqdKyOa2Z9Y",
+      "img": "https://i.scdn.co/image/ab676161000051749d93bc38b5011e8d921c6c39",
+      "cluster": "Jazz e hip hop instrumental",
+      "genre": "Jazz funk / neo soul",
+      "why": "Groove complexo e harmonias que combinam com Yussef Dayes e Casiopea.",
+      "seeds": [
+        "Yussef Dayes",
+        "Casiopea"
+      ]
+    },
+    {
+      "name": "Moses Boyd",
+      "spotify": "1otDUlTEBjcyDQg6CkHRaV",
+      "img": "https://i.scdn.co/image/ab676161000051745f549b170933ba9cc89dd3bf",
+      "cluster": "Jazz e hip hop instrumental",
+      "genre": "Jazz britânico",
+      "why": "Bateria e jazz de Londres, da mesma cena de Yussef Dayes.",
+      "seeds": [
+        "Yussef Dayes"
+      ]
+    },
+    {
+      "name": "Madlib",
+      "spotify": "5LhTec3c7dcqBvpLRWbMcf",
+      "img": "https://i.scdn.co/image/ab67616100005174db860c843b90fdea28f670d6",
+      "cluster": "Jazz e hip hop instrumental",
+      "genre": "Beats e jazz rap",
+      "why": "Produtor de samples raros, bem na linha de Pete Rock e Nujabes.",
+      "seeds": [
+        "Pete Rock",
+        "Nujabes"
+      ]
+    },
+    {
+      "name": "Emancipator",
+      "spotify": "6HCnsY0Rxi3cg53xreoAIm",
+      "img": "https://i.scdn.co/image/ab67616100005174209cbc779adeb3b9df6e2635",
+      "cluster": "Jazz e hip hop instrumental",
+      "genre": "Downtempo",
+      "why": "Ambiente instrumental e cinematográfico para ouvir de fundo.",
+      "seeds": [
+        "Nujabes"
+      ]
+    },
+    {
+      "name": "Spiritbox",
+      "spotify": "4MzJMcHQBl9SIYSjwWn8QW",
+      "img": "https://i.scdn.co/image/ab6761610000517409c67132c06a3623cfb212aa",
+      "cluster": "Rock pesado e metal",
+      "genre": "Metalcore / alternativo",
+      "why": "Vocal melódico sobre riffs pesados, com a atmosfera de Deftones.",
+      "seeds": [
+        "Deftones",
+        "Bring Me the Horizon"
+      ]
+    },
+    {
+      "name": "Knocked Loose",
+      "spotify": "4qrHkx5cgWIslciLXUMrYw",
+      "img": "https://i.scdn.co/image/ab6761610000517406045f5645ec22dfcd2db218",
+      "cluster": "Rock pesado e metal",
+      "genre": "Hardcore / metalcore",
+      "why": "Peso e energia de hardcore parecidos com Turnstile.",
+      "seeds": [
+        "Turnstile"
+      ]
+    },
+    {
+      "name": "Code Orange",
+      "spotify": "6qtECqesbU29iftyeWmldK",
+      "img": "https://i.scdn.co/image/ab676161000051741cef36afb58ecc6104349a8e",
+      "cluster": "Rock pesado e metal",
+      "genre": "Hardcore / metalcore",
+      "why": "Mistura de hardcore e industrial, próxima de Turnstile e Deftones.",
+      "seeds": [
+        "Turnstile",
+        "Deftones"
+      ]
+    },
+    {
+      "name": "Bad Omens",
+      "spotify": "3Ri4H12KFyu98LMjSoij5V",
+      "img": "https://i.scdn.co/image/ab676161000051743dc0577ed61ec73b498a56ee",
+      "restrito": true,
+      "cluster": "Rock pesado e metal",
+      "genre": "Metalcore alternativo",
+      "why": "Refrões fortes e peso moderno, com a energia de Linkin Park.",
+      "seeds": [
+        "Linkin Park",
+        "Bring Me the Horizon"
+      ]
+    },
+    {
+      "name": "Gojira",
+      "spotify": "0GDGKpJFhVpcjIGF8N6Ewt",
+      "img": "https://i.scdn.co/image/ab6761610000517496c4949ee078fbef5d5adb68",
+      "cluster": "Rock pesado e metal",
+      "genre": "Metal progressivo",
+      "why": "Peso de Pantera e Metallica com técnica e groove mais modernos.",
+      "seeds": [
+        "Pantera",
+        "Metallica"
+      ]
+    },
+    {
+      "name": "Mastodon",
+      "spotify": "1Dvfqq39HxvCJ3GvfeIFuT",
+      "img": "https://i.scdn.co/image/ab676161000051749b92861a97e05664994bf21e",
+      "cluster": "Rock pesado e metal",
+      "genre": "Metal progressivo / stoner",
+      "why": "Riffs complexos e vocais épicos, na linha de Alice in Chains.",
+      "seeds": [
+        "Alice in Chains",
+        "Trivium"
+      ]
+    },
+    {
+      "name": "Glassjaw",
+      "spotify": "7nt6S4klYHg4I7Q4lTSmc0",
+      "img": "https://i.scdn.co/image/ab67616100005174977cd2b265179d31a2b2de1f",
+      "cluster": "Rock pesado e metal",
+      "genre": "Post-hardcore",
+      "why": "Peso e emoção de post-hardcore, parecido com Deftones.",
+      "seeds": [
+        "Deftones"
+      ]
+    },
+    {
+      "name": "Veigh",
+      "spotify": "4YqwRbMLqGHRHLS1w2ZKse",
+      "img": "https://i.scdn.co/image/ab67616100005174fe8a6cb29ef8acc97e6bb3b1",
+      "cluster": "Trap e rap latino/brasileiro",
+      "genre": "Trap brasileiro",
+      "why": "Trap melódico brasileiro, na mesma faixa de Matuê.",
+      "seeds": [
+        "Matuê"
+      ]
+    },
+    {
+      "name": "Filipe Ret",
+      "spotify": "7gJN8W0589FisSYJS17K54",
+      "img": "https://i.scdn.co/image/ab6761610000517426452b569fd78157373ea97a",
+      "cluster": "Trap e rap latino/brasileiro",
+      "genre": "Rap brasileiro",
+      "why": "Rap com letras fortes e beats variados, bom para quem curte Matuê.",
+      "seeds": [
+        "Matuê",
+        "LJONES"
+      ]
+    },
+    {
+      "name": "Oruam",
+      "spotify": "4yGgbQJMq9orWypwqtdzYT",
+      "img": "https://i.scdn.co/image/ab67616100005174103e2b2ae3960b860ba4b1df",
+      "cluster": "Trap e rap latino/brasileiro",
+      "genre": "Trap brasileiro",
+      "why": "Trap com energia e refrões marcantes do rap do Rio.",
+      "seeds": [
+        "Matuê"
+      ]
+    },
+    {
+      "name": "Duki",
+      "spotify": "1bAftSH8umNcGZ0uyV7LMg",
+      "img": "https://i.scdn.co/image/ab67616100005174e1429fbc7c26388b82f4cfbd",
+      "cluster": "Trap e rap latino/brasileiro",
+      "genre": "Trap argentino",
+      "why": "Um dos nomes mais fortes do trap argentino, parecido com Ca7riel & Paco Amoroso.",
+      "seeds": [
+        "Ca7riel & Paco Amoroso"
+      ]
+    },
+    {
+      "name": "Trueno",
+      "spotify": "2x7PC78TmgqpEIjaGAZ0Oz",
+      "img": "https://i.scdn.co/image/ab676161000051742315882f47bbd20b3b808232",
+      "cluster": "Trap e rap latino/brasileiro",
+      "genre": "Trap latino",
+      "why": "Rap e trap argentino com produção moderna.",
+      "seeds": [
+        "Ca7riel & Paco Amoroso"
+      ]
+    },
+    {
+      "name": "Bizarrap",
+      "spotify": "716NhGYqD1jl2wI1Qkgq36",
+      "img": "https://i.scdn.co/image/ab67616100005174a3257e23170a732bf11d3a0b",
+      "cluster": "Trap e rap latino/brasileiro",
+      "genre": "Produção / trap latino",
+      "why": "Produtor de sessões que reúnem vários rappers latinos.",
+      "seeds": [
+        "Ca7riel & Paco Amoroso"
+      ]
+    },
+    {
+      "name": "A Tribe Called Quest",
+      "spotify": "09hVIj6vWgoCDtT03h8ZCa",
+      "img": "https://i.scdn.co/image/ab67616100005174774d73ae6796b6f437d89db9",
+      "cluster": "Hip hop clássico e alternativo",
+      "genre": "Hip hop clássico",
+      "why": "Mesma escola de The Pharcyde: flow leve e samples de jazz.",
+      "seeds": [
+        "The Pharcyde",
+        "Pete Rock"
+      ]
+    },
+    {
+      "name": "Souls of Mischief",
+      "spotify": "5Rzqmz1zAszembFHGZQuAt",
+      "img": "https://i.scdn.co/image/ab6761610000517477f22a53b5c7965572c5480c",
+      "cluster": "Hip hop clássico e alternativo",
+      "genre": "Hip hop clássico",
+      "why": "Rap da costa oeste dos anos 90, próximo de The Pharcyde.",
+      "seeds": [
+        "The Pharcyde"
+      ]
+    },
+    {
+      "name": "Earl Sweatshirt",
+      "spotify": "3A5tHz1SfngyOZM2gItYKu",
+      "img": "https://i.scdn.co/image/ab67616100005174e387d22e49d2324c7c69ea86",
+      "cluster": "Hip hop clássico e alternativo",
+      "genre": "Rap alternativo",
+      "why": "Produção sombria e letras densas, parecido com Tyler, The Creator.",
+      "seeds": [
+        "Tyler, The Creator"
+      ]
+    },
+    {
+      "name": "Vince Staples",
+      "spotify": "68kEuyFKyqrdQQLLsmiatm",
+      "img": "https://i.scdn.co/image/ab67616100005174d90bf111a0acbcb98fc6569d",
+      "restrito": true,
+      "cluster": "Hip hop clássico e alternativo",
+      "genre": "Rap alternativo",
+      "why": "Beats minimalistas e rap direto, na linha de Tyler, The Creator.",
+      "seeds": [
+        "Tyler, The Creator"
+      ]
+    },
+    {
+      "name": "Digable Planets",
+      "spotify": "0gqIrDRL7CEPBWMmkuZPdQ",
+      "img": "https://i.scdn.co/image/ab6772690000bac3e27ed3a816df14e399acb7d2",
+      "restrito": true,
+      "cluster": "Hip hop clássico e alternativo",
+      "genre": "Jazz rap",
+      "why": "Jazz rap dos anos 90 com flow relaxado, bom para quem ouve Pharcyde e Pete Rock.",
+      "seeds": [
+        "The Pharcyde",
+        "Pete Rock"
+      ]
+    },
+    {
+      "name": "Khruangbin",
+      "spotify": "2mVVjNmdjXZZDvhgQWiakk",
+      "img": "https://i.scdn.co/image/ab676161000051747c7e48743caf917d5206fb39",
+      "cluster": "Jazz e hip hop instrumental",
+      "genre": "Funk psicodélico",
+      "why": "Groove e guitarra de Tame Impala e Gorillaz, com ritmo mais calmo.",
+      "seeds": [
+        "Tame Impala",
+        "Gorillaz"
+      ]
+    },
+    {
+      "name": "Unknown Mortal Orchestra",
+      "spotify": "1LeVJ5GPeYDOVUjxx1y7Rp",
+      "img": "https://i.scdn.co/image/ab67616100005174e6d5bde61a28cfb8e53893e1",
+      "cluster": "Hip hop clássico e alternativo",
+      "genre": "Psicodélico / funk",
+      "why": "Guitarra psicodélica e groove de Tame Impala com toque de hip hop.",
+      "seeds": [
+        "Tame Impala",
+        "Gorillaz"
+      ]
+    }
+  ]
+}
