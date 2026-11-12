@@ -1,72 +1,83 @@
-# Recomendador de bandas
+# Garimpo
 
-App de desktop (Electron) que sugere bandas e artistas novos com base nos seus top artistas
-do Last.fm.
+App de desktop (Electron) que garimpa artistas novos a partir do que você já ouve.
+Cada pessoa usa as próprias contas; nada sai do seu computador além das consultas às APIs.
+
+## De onde vem o seu gosto musical
+
+Use pelo menos uma das três fontes, em **Configurações**:
+
+- **Spotify**: você entra com a sua conta e o app lê os seus top artistas (permissão `user-top-read`).
+- **Last.fm** (opcional): usuário e chave de API. O app tem um guia passo a passo que abre o site
+  certo e explica o que preencher.
+- **Lista manual** (opcional): digite alguns artistas de que você gosta.
+
+Os artistas parecidos vêm do Last.fm quando há chave configurada. Sem chave, vêm dos
+"artistas relacionados" do Deezer, que é público e não precisa de conta. As fotos vêm do Deezer.
+
+### Regras do Spotify que você precisa conhecer
+
+O login do Spotify exige um **Client ID**, registrado no painel de desenvolvedor do Spotify.
+Desde 2026 o Spotify impõe, para apps em modo de desenvolvimento:
+
+- quem registra o Client ID precisa ter **Spotify Premium**;
+- cada Client ID aceita até **5 contas**, cadastradas em "User Management" no painel.
+
+Por isso o app não traz um Client ID embutido: cada pessoa cria o seu (o guia dentro do app
+explica), ou usa o de um amigo que a tenha adicionado. Quem não tem Premium ainda pode usar o
+app com o Last.fm ou com a lista manual. O endereço de retorno a registrar é
+`http://127.0.0.1:48721/callback`.
 
 ## Como rodar
 
-Precisa do Node.js instalado. Na primeira vez, dentro desta pasta:
+Precisa do Node.js. Na primeira vez:
 
 ```bash
 npm install
 ```
 
-Depois, para abrir o app:
+Para abrir o app:
 
 ```bash
 npm start
 ```
 
-Na primeira abertura o app pede o seu **usuário do Last.fm** e a **chave de API**. A chave é grátis e você cria em
-https://www.last.fm/api/account/create. A chave fica salva só neste PC, em
-`%APPDATA%\recomendador-de-bandas\config.json`, fora da pasta do projeto.
-
 ## Instalador e ícone
 
-- `npm run instalador`: gera `dist/Recomendador de bandas Setup 1.0.0.exe`. Ele instala o app em
-  `%LOCALAPPDATA%\Programs\recomendador-de-bandas` e cria atalhos na Área de Trabalho e no menu Iniciar.
-  O instalador não é assinado, então o Windows pode mostrar um aviso do SmartScreen em outros PCs.
+- `npm run instalador`: gera `dist/Garimpo Setup 1.0.0.exe`, que instala o app e cria atalhos na
+  Área de Trabalho e no menu Iniciar. O instalador não é assinado, então o Windows pode mostrar
+  um aviso do SmartScreen.
 - `npm run icone`: regenera `build/icon.png` e `build/icon.ico` a partir de `build/icon.svg`.
 - `build/identidade-visual.html`: ícone, cores e tipografia do app.
-- Depois de mudar o código, rode `npm run instalador` e instale de novo para atualizar o app instalado.
 
-## Como funciona
+## Como a recomendação é calculada
 
-- **Aba "Do Last.fm"**: lê seus top artistas (`user.getTopArtists`) no período escolhido e
-  busca os similares (`artist.getSimilar`) dos N primeiros. Cada similar ganha pontos:
-  `match × (scrobbles da semente ÷ scrobbles do seu artista nº 1)`, somados entre as
-  sementes. Artistas que já estão no seu top 500 são removidos. As fotos vêm da busca
-  pública do Deezer (a API do Last.fm não devolve mais fotos de artistas); quem não tem
-  foto com nome idêntico lá aparece com a inicial do nome. O último resultado fica em
-  cache (`%APPDATA%\recomendador-de-bandas\cache.json`) e aparece ao abrir o app.
-- **Aba "Curadas"**: a lista escrita à mão, em `src/dados.json`, com links diretos e fotos
-  do Spotify.
+1. Cada artista que você ouve vira uma "semente" com peso de 0 a 1: no Last.fm, scrobbles ÷
+   scrobbles do seu artista mais ouvido; no Spotify, a posição no ranking (ele não informa
+   contagens); na lista manual, 0,8.
+2. O app busca os parecidos das N sementes mais fortes.
+3. Cada parecido soma `similaridade × peso da semente`. Quem você já ouve fica de fora.
+
+## Onde ficam os seus dados
+
+Em `%APPDATA%\garimpo\`: `config.json` (usuário e chave do Last.fm, Client ID e login do
+Spotify, lista manual) e `cache.json` (último resultado). O token do Spotify é guardado cifrado
+pelo Windows. Nada disso fica na pasta do projeto.
 
 ## Estrutura
 
 - `src/main.js`: janela, configuração, cache e IPC.
-- `src/lastfm.js`: chamadas ao Last.fm e cálculo das recomendações.
+- `src/recomendar.js`: junta as fontes e calcula as recomendações.
+- `src/spotify.js`: login (PKCE) e top artistas do Spotify.
+- `src/lastfm.js`: top artistas e similares do Last.fm.
+- `src/deezer.js`: fotos e artistas relacionados.
 - `src/preload.js`: ponte segura entre a interface e o processo principal.
 - `src/renderer/`: interface (HTML, CSS, JS).
-- `src/dados.json`: grupos de gosto (`clusters`) e recomendações curadas (`recs`).
-- `recomendador.html`: versão antiga em página única, sem o Last.fm ao vivo. Pode ser apagada.
-
-## Grupos de gosto usados no recomendador
-
-- Jazz e hip hop instrumental (Nujabes, Casiopea, Tsutchie, Jazz Liberatorz, Uyama Hiroto, Yussef Dayes, Jazzbois)
-- Rock pesado e metal (Turnstile, Deftones, Linkin Park, Korn, Trivium, Pantera, Alice in Chains, Metallica)
-- Trap e rap latino/brasileiro (Matuê, Ca7riel & Paco Amoroso, Nitsua, LJONES)
-- Hip hop clássico e alternativo (The Pharcyde, Pete Rock, Tyler, The Creator)
+- `src/dados.json`: lista curada da aba "Curadas", escrita à mão a partir do gosto do autor.
 
 ## Limitações conhecidas
 
-- O Spotify não foi lido: as ferramentas de busca só devolveram playlists geradas pela plataforma, não os top artistas da conta. Cruzar com os dados do Spotify é um próximo passo.
-- As recomendações (`recs` em `src/dados.json`) foram escritas a partir de conhecimento geral, não de um algoritmo de similaridade.
-- Em 12/11/2026 todas as 26 recomendações foram conferidas no catálogo do Spotify. Cada uma tem o ID do artista (`spotify`) e a foto (`img`), e o link abre direto `open.spotify.com/artist/<id>`. Sem `spotify`, o card volta a usar a busca pelo nome.
-- Bad Omens, Vince Staples e Digable Planets aparecem no Spotify como não tocáveis nesta conta (restrição de licença, `restrito: true`). O card mostra um aviso.
-- Alguns nomes têm perfis duplicados no Spotify (Tomppabeats, Spiritbox, Glassjaw, Filipe Ret, Trueno, A Tribe Called Quest, Vince Staples, Unknown Mortal Orchestra). Foi usado o perfil principal, o que tem foto de artista.
-
-## Ideias para a próxima etapa
-
-- Ler os top artistas do Spotify e recalcular os grupos com os dois perfis.
-- Trocar os links de busca do Spotify das recomendações automáticas por links diretos.
+- O login do Spotify foi testado com um servidor simulado, não com uma conta real.
+- Os links do Spotify das recomendações abrem a busca pelo nome, não a página do artista.
+- A aba "Curadas" é uma lista fixa do autor, não personalizada.
+- Alguns itens da lista curada aparecem no Spotify como não tocáveis em certas contas.

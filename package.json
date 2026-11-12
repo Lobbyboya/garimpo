@@ -1,8 +1,8 @@
 {
-  "name": "recomendador-de-bandas",
-  "productName": "Recomendador de bandas",
+  "name": "garimpo",
+  "productName": "Garimpo",
   "version": "1.0.0",
-  "description": "App de desktop que recomenda bandas a partir dos seus top artistas do Last.fm.",
+  "description": "App de desktop que garimpa artistas novos a partir do que você ouve no Spotify e no Last.fm.",
   "author": "Renan",
   "main": "src/main.js",
   "private": true,
@@ -12,8 +12,8 @@
     "instalador": "electron-builder --win nsis"
   },
   "build": {
-    "appId": "local.renan.recomendador-de-bandas",
-    "productName": "Recomendador de bandas",
+    "appId": "app.garimpo.desktop",
+    "productName": "Garimpo",
     "files": [
       "src/**/*",
       "package.json"
@@ -30,7 +30,7 @@
       "perMachine": false,
       "createDesktopShortcut": "always",
       "createStartMenuShortcut": true,
-      "shortcutName": "Recomendador de bandas",
+      "shortcutName": "Garimpo",
       "runAfterFinish": false
     }
   },

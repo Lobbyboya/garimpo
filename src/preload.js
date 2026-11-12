@@ -4,13 +4,17 @@ const { contextBridge, ipcRenderer } = require("electron");
 contextBridge.exposeInMainWorld("api", {
   lerConfig: () => ipcRenderer.invoke("config:get"),
   salvarConfig: (dados) => ipcRenderer.invoke("config:set", dados),
+  testarLastfm: (dados) => ipcRenderer.invoke("lastfm:testar", dados),
+  removerLastfm: () => ipcRenderer.invoke("lastfm:remover"),
+  conectarSpotify: () => ipcRenderer.invoke("spotify:conectar"),
+  desconectarSpotify: () => ipcRenderer.invoke("spotify:desconectar"),
   lerCuradas: () => ipcRenderer.invoke("curadas:get"),
   lerCache: () => ipcRenderer.invoke("cache:get"),
-  gerar: (opcoes) => ipcRenderer.invoke("lastfm:gerar", opcoes),
+  gerar: (opcoes) => ipcRenderer.invoke("recs:gerar", opcoes),
   aoProgresso: (fn) => {
     const ouvinte = (_e, msg) => fn(msg);
-    ipcRenderer.on("lastfm:progresso", ouvinte);
-    return () => ipcRenderer.removeListener("lastfm:progresso", ouvinte);
+    ipcRenderer.on("recs:progresso", ouvinte);
+    return () => ipcRenderer.removeListener("recs:progresso", ouvinte);
   },
   abrirLink: (url) => ipcRenderer.send("abrir-link", url),
 });

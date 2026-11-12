@@ -1,4 +1,4 @@
-:root { --bg:#0f1115; --card:#181b22; --line:#262a33; --text:#e8eaf0; --muted:#9aa0ad; --accent:#1db954; --warn:#e0a84a; --erro:#ef6b6b; }
+:root { color-scheme:dark; --bg:#0f1115; --card:#181b22; --line:#262a33; --text:#e8eaf0; --muted:#9aa0ad; --accent:#1db954; --warn:#e0a84a; --erro:#ef6b6b; }
 * { box-sizing: border-box; }
 body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background:var(--bg); color:var(--text); padding:24px; }
 h1 { margin:0 0 4px; font-size:1.6rem; }
@@ -52,3 +52,30 @@ dialog form { display:flex; flex-direction:column; gap:14px; }
 .ajuda { color:var(--muted); font-size:.82rem; margin:0; }
 .ajuda a { color:var(--accent); }
 .acoes { display:flex; justify-content:flex-end; gap:8px; }
+
+/* Configurações e guias */
+dialog { max-height:90vh; overflow-y:auto; width:min(560px, 94vw); }
+dialog h2 { margin-bottom:8px; }
+dialog h3 { margin:0 0 8px; font-size:1rem; }
+.bloco { border:1px solid var(--line); border-radius:10px; padding:14px; margin-top:14px; display:flex; flex-direction:column; gap:10px; }
+.opcional { font-size:.7rem; font-weight:500; color:var(--muted); border:1px solid var(--line); border-radius:6px; padding:1px 6px; margin-left:6px; vertical-align:middle; }
+.estado { font-size:.88rem; color:var(--muted); }
+.estado.ok { color:var(--accent); }
+.acoes { margin-top:16px; }
+.acoes.esquerda { justify-content:flex-start; flex-wrap:wrap; align-items:center; margin-top:0; }
+.textual { background:none; border:none; color:var(--accent); cursor:pointer; font-size:.85rem; padding:4px 0; }
+.textual:hover { text-decoration:underline; }
+.msg { font-size:.85rem; color:var(--muted); min-height:1.2em; }
+.msg.erro { color:var(--erro); }
+.msg.ok { color:var(--accent); }
+textarea { padding:9px 12px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--text); font:inherit; font-size:.9rem; resize:vertical; }
+dialog input[type=text], dialog input[type=password] { background:var(--bg); }
+.passos { margin:14px 0 0; padding-left:22px; display:flex; flex-direction:column; gap:14px; font-size:.9rem; line-height:1.5; }
+.passos ul { margin:6px 0; padding-left:18px; color:var(--muted); }
+.passos .botao { margin-top:8px; }
+.passos label { margin-top:8px; }
+.passos i { color:var(--text); font-style:normal; font-weight:600; }
+.copiar { display:flex; gap:8px; align-items:center; margin-top:6px; flex-wrap:wrap; }
+.copiar .botao { margin-top:0; padding:5px 10px; }
+code { background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:4px 8px; font-family:Consolas, monospace; font-size:.85rem; color:var(--text); user-select:all; }
+.avisos { color:var(--warn); font-size:.85rem; margin:-6px 0 12px; }

@@ -4,37 +4,34 @@
 <meta charset="UTF-8">
 <meta http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' https://i.scdn.co https://*.dzcdn.net">
-<title>Recomendador de bandas</title>
+<title>Garimpo</title>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
 <header>
   <div>
-    <h1>Recomendador de bandas</h1>
+    <h1>Garimpo</h1>
     <div class="sub" id="sub">Carregando...</div>
   </div>
   <button class="botao secundario" id="abrirConfig">Configurações</button>
 </header>
 
 <nav class="abas">
-  <button class="aba ativa" data-aba="lastfm">Do Last.fm</button>
+  <button class="aba ativa" data-aba="voce">Para você</button>
   <button class="aba" data-aba="curadas">Curadas</button>
 </nav>
 
 <input type="search" id="busca" placeholder="Buscar por nome, gênero ou artista seu...">
 
-<!-- Recomendações automáticas -->
-<section id="painel-lastfm">
+<!-- Recomendações geradas a partir do que a pessoa ouve -->
+<section id="painel-voce">
   <div class="controles">
     <label>Período
       <select id="periodo">
-        <option value="overall">Desde sempre</option>
-        <option value="12month">Últimos 12 meses</option>
-        <option value="6month">Últimos 6 meses</option>
-        <option value="3month">Últimos 3 meses</option>
-        <option value="1month">Último mês</option>
-        <option value="7day">Últimos 7 dias</option>
+        <option value="longo">Longo prazo (anos)</option>
+        <option value="medio">Últimos 6 meses</option>
+        <option value="curto">Último mês</option>
       </select>
     </label>
     <label>Usar os top
@@ -45,10 +42,11 @@
         <option value="50">50 artistas</option>
       </select>
     </label>
-    <button class="botao" id="gerar">Gerar recomendações</button>
+    <button class="botao" id="gerar">Garimpar</button>
   </div>
   <div class="status" id="status"></div>
-  <div class="grid" id="grid-lastfm"></div>
+  <div class="avisos" id="avisos"></div>
+  <div class="grid" id="grid-voce"></div>
 </section>
 
 <!-- Recomendações curadas (src/dados.json) -->
@@ -59,25 +57,116 @@
 
 <div class="empty" id="empty">Nada encontrado com esse filtro.</div>
 
+<!-- Configurações -->
 <dialog id="config">
-  <form method="dialog" id="formConfig">
-    <h2>Configurações</h2>
-    <label>Usuário do Last.fm
-      <input type="text" id="cfgUsuario" autocomplete="off" required>
+  <h2>Configurações</h2>
+  <p class="ajuda">O Garimpo precisa saber o que você ouve. Use pelo menos uma das três fontes abaixo. Tudo fica salvo só neste computador.</p>
+
+  <section class="bloco">
+    <h3>Spotify</h3>
+    <div class="estado" id="spEstado"></div>
+    <label id="spCampoId">Client ID
+      <input type="text" id="cfgClientId" autocomplete="off" spellcheck="false" placeholder="32 letras e números">
     </label>
-    <label>Chave de API do Last.fm
-      <input type="password" id="cfgChave" autocomplete="off" placeholder="Deixe vazio para manter a atual">
-    </label>
-    <p class="ajuda">
-      Crie uma chave grátis em
-      <a href="https://www.last.fm/api/account/create" target="_blank">last.fm/api/account/create</a>.
-      Ela fica salva só neste PC.
-    </p>
-    <div class="acoes">
-      <button class="botao secundario" value="cancelar" formnovalidate>Cancelar</button>
-      <button class="botao" value="salvar" id="salvarConfig">Salvar</button>
+    <div class="acoes esquerda">
+      <button class="botao" id="spConectar">Conectar ao Spotify</button>
+      <button class="botao secundario" id="spSair">Desconectar</button>
+      <button class="textual" id="spGuia">Como conseguir um Client ID</button>
     </div>
-  </form>
+    <div class="msg" id="spMsg"></div>
+  </section>
+
+  <section class="bloco">
+    <h3>Last.fm <span class="opcional">opcional</span></h3>
+    <div class="estado" id="lfEstado"></div>
+    <div class="acoes esquerda">
+      <button class="botao secundario" id="lfGuia">Configurar passo a passo</button>
+      <button class="textual" id="lfRemover">Remover chave</button>
+    </div>
+  </section>
+
+  <section class="bloco">
+    <h3>Artistas que você curte <span class="opcional">opcional</span></h3>
+    <label>Um por linha. Serve sozinho ou junto com as outras fontes.
+      <textarea id="cfgManual" rows="4" spellcheck="false" placeholder="Ex.:&#10;Nujabes&#10;Turnstile"></textarea>
+    </label>
+  </section>
+
+  <div class="acoes">
+    <button class="botao secundario" id="cfgCancelar">Cancelar</button>
+    <button class="botao" id="cfgSalvar">Salvar</button>
+  </div>
+</dialog>
+
+<!-- Guia: chave do Last.fm -->
+<dialog id="guiaLastfm">
+  <h2>Sua chave do Last.fm</h2>
+  <p class="ajuda">Com o Last.fm o Garimpo usa o seu histórico de scrobbles e a similaridade do próprio Last.fm. A chave é grátis e leva uns 2 minutos.</p>
+  <ol class="passos">
+    <li>
+      <b>Abra a página de criação da chave.</b> Entre na sua conta do Last.fm se o site pedir.
+      <div><button class="botao" id="lfAbrirSite">Abrir o site do Last.fm</button></div>
+    </li>
+    <li>
+      <b>Preencha o formulário assim:</b>
+      <ul>
+        <li><i>Application name:</i> Garimpo</li>
+        <li><i>Application description:</i> Uso pessoal</li>
+        <li><i>Callback URL</i> e <i>Application homepage:</i> deixe vazios</li>
+      </ul>
+      Marque "I'm not a robot" e clique em <b>Submit</b>.
+    </li>
+    <li>
+      <b>Copie a "API key".</b> A página seguinte mostra dois códigos. Você só precisa do primeiro, a <i>API key</i> (32 letras e números). O <i>Shared secret</i> não é usado: não cole aqui nem compartilhe.
+    </li>
+    <li>
+      <b>Cole aqui e teste.</b>
+      <label>Seu usuário do Last.fm
+        <input type="text" id="lfUsuario" autocomplete="off" spellcheck="false" placeholder="o nome que aparece em last.fm/user/...">
+      </label>
+      <label>API key
+        <input type="password" id="lfChave" autocomplete="off" spellcheck="false">
+      </label>
+    </li>
+  </ol>
+  <div class="msg" id="lfMsg"></div>
+  <div class="acoes">
+    <button class="botao secundario" id="lfFechar">Fechar</button>
+    <button class="botao" id="lfTestar">Salvar e testar</button>
+  </div>
+</dialog>
+
+<!-- Guia: Client ID do Spotify -->
+<dialog id="guiaSpotify">
+  <h2>Client ID do Spotify</h2>
+  <p class="ajuda">O Spotify exige que cada app tenha um "Client ID" registrado por alguém. Regras do Spotify: quem registra precisa ter <b>Spotify Premium</b>, e cada Client ID aceita até 5 contas. Se um amigo já registrou, peça o Client ID dele e que ele adicione o seu e-mail em "User Management".</p>
+  <ol class="passos">
+    <li>
+      <b>Abra o painel de desenvolvedor</b> e entre com a sua conta do Spotify.
+      <div><button class="botao" id="spAbrirSite">Abrir o painel do Spotify</button></div>
+    </li>
+    <li>
+      <b>Clique em "Create app"</b> e preencha:
+      <ul>
+        <li><i>App name:</i> Garimpo</li>
+        <li><i>App description:</i> Uso pessoal</li>
+        <li><i>Redirect URIs:</i> cole exatamente o endereço abaixo e clique em "Add"
+          <div class="copiar"><code id="spRedirect"></code><button class="botao secundario" id="spCopiar">Copiar</button></div>
+        </li>
+        <li><i>Which API/SDKs are you planning to use?</i> marque <b>Web API</b></li>
+      </ul>
+      Aceite os termos e clique em <b>Save</b>.
+    </li>
+    <li>
+      <b>Copie o "Client ID"</b> que aparece na página do app (em "Settings", se não estiver à vista). Não precisa do "Client secret".
+    </li>
+    <li>
+      <b>Volte para Configurações</b>, cole o Client ID e clique em "Conectar ao Spotify". O navegador abre para você autorizar.
+    </li>
+  </ol>
+  <div class="acoes">
+    <button class="botao" id="spFecharGuia">Entendi</button>
+  </div>
 </dialog>
 
 <script src="renderer.js"></script>
