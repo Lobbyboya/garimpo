@@ -19,40 +19,42 @@
 
 <nav class="abas">
   <button class="aba ativa" data-aba="voce">Para você</button>
-  <button class="aba" data-aba="curadas">Curadas</button>
+  <button class="aba" data-aba="curadoria">Curadoria</button>
 </nav>
 
 <input type="search" id="busca" placeholder="Buscar por nome, gênero ou artista seu...">
 
-<!-- Recomendações geradas a partir do que a pessoa ouve -->
+<div class="controles">
+  <label>Período
+    <select id="periodo">
+      <option value="longo">Longo prazo (anos)</option>
+      <option value="medio">Últimos 6 meses</option>
+      <option value="curto">Último mês</option>
+    </select>
+  </label>
+  <label>Usar os top
+    <select id="sementes">
+      <option value="10">10 artistas</option>
+      <option value="20" selected>20 artistas</option>
+      <option value="30">30 artistas</option>
+      <option value="50">50 artistas</option>
+    </select>
+  </label>
+  <button class="botao" id="gerar">Garimpar</button>
+</div>
+<div class="status" id="status"></div>
+<div class="avisos" id="avisos"></div>
+
+<!-- Ranking geral das recomendações -->
 <section id="painel-voce">
-  <div class="controles">
-    <label>Período
-      <select id="periodo">
-        <option value="longo">Longo prazo (anos)</option>
-        <option value="medio">Últimos 6 meses</option>
-        <option value="curto">Último mês</option>
-      </select>
-    </label>
-    <label>Usar os top
-      <select id="sementes">
-        <option value="10">10 artistas</option>
-        <option value="20" selected>20 artistas</option>
-        <option value="30">30 artistas</option>
-        <option value="50">50 artistas</option>
-      </select>
-    </label>
-    <button class="botao" id="gerar">Garimpar</button>
-  </div>
-  <div class="status" id="status"></div>
-  <div class="avisos" id="avisos"></div>
   <div class="grid" id="grid-voce"></div>
 </section>
 
-<!-- Recomendações curadas (src/dados.json) -->
-<section id="painel-curadas" hidden>
+<!-- Curadoria: as mesmas recomendações, organizadas pelos seus grupos de gosto -->
+<section id="painel-curadoria" hidden>
+  <div class="status" id="curadoriaInfo"></div>
   <div class="filters" id="clusters"></div>
-  <div class="grid" id="grid-curadas"></div>
+  <div class="grid" id="grid-curadoria"></div>
 </section>
 
 <div class="empty" id="empty">Nada encontrado com esse filtro.</div>

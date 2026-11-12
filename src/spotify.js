@@ -122,7 +122,11 @@ async function chamar(token, caminho) {
   if (resp.status === 403) {
     throw new Error("O Spotify recusou o acesso. A conta precisa estar na lista de usuários do app (User Management) no painel de desenvolvedor.");
   }
-  if (!resp.ok) throw new Error(`Erro ${resp.status} ao falar com o Spotify.`);
+  if (!resp.ok) {
+    const e = new Error(resp.status === 429 ? "O Spotify pediu para ir mais devagar." : `Erro ${resp.status} ao falar com o Spotify.`);
+    e.codigo = resp.status;
+    throw e;
+  }
   return resp.json();
 }
 
@@ -134,7 +138,20 @@ async function perfil(token) {
 // time_range: short_term (~4 semanas), medium_term (~6 meses) ou long_term (~1 ano).
 async function topArtistas(token, timeRange) {
   const dados = await chamar(token, `/me/top/artists?limit=50&time_range=${timeRange}`);
-  return (dados.items || []).map((a) => ({ nome: a.name }));
+  return (dados.items || []).map((a) => ({ nome: a.name, generos: a.genres || [] }));
 }
 
-module.exports = { REDIRECT, login, renovar, perfil, topArtistas };
+// Procura o artista pelo nome exato. Devolve o link direto, a foto e os gêneros, ou null.
+async function buscarArtista(token, nome) {
+  const dados = await chamar(token, "/search?type=artist&limit=5&q=" + encodeURIComponent(nome));
+  const alvo = nome.trim().toLowerCase();
+  const a = (dados.artists?.items || []).find((x) => x?.name?.trim().toLowerCase() === alvo);
+  if (!a) return null;
+  return {
+    link: a.external_urls?.spotify || null,
+    img: a.images?.[1]?.url || a.images?.[0]?.url || null,
+    generos: a.genres || [],
+  };
+}
+
+module.exports = { REDIRECT, login, renovar, perfil, topArtistas, buscarArtista };

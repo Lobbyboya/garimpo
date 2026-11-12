@@ -58,6 +58,18 @@ npm start
 2. O app busca os parecidos das N sementes mais fortes.
 3. Cada parecido soma `similaridade × peso da semente`. Quem você já ouve fica de fora.
 
+## Curadoria dinâmica
+
+A aba "Curadoria" organiza as recomendações pelos seus grupos de gosto. Nada é fixo:
+
+- Os grupos saem dos gêneros dos artistas que você mais ouve (gêneros do Spotify; quando faltam,
+  tags do Last.fm). O app pega o gênero que mais pesa entre os seus artistas, junta quem o tem e
+  repete, até 5 grupos. O resto vai para "Outros".
+- Cada recomendação entra no grupo do artista seu que mais a puxou e mostra o próprio gênero.
+- Com o Spotify conectado, o link abre direto a página do artista. Sem ele, abre a busca.
+- Ao abrir o app, se o último resultado tem mais de um dia, tudo é refeito sozinho. Assim os
+  grupos e as recomendações acompanham o que você anda ouvindo.
+
 ## Onde ficam os seus dados
 
 Em `%APPDATA%\garimpo\`: `config.json` (usuário e chave do Last.fm, Client ID e login do
@@ -67,17 +79,15 @@ pelo Windows. Nada disso fica na pasta do projeto.
 ## Estrutura
 
 - `src/main.js`: janela, configuração, cache e IPC.
-- `src/recomendar.js`: junta as fontes e calcula as recomendações.
-- `src/spotify.js`: login (PKCE) e top artistas do Spotify.
-- `src/lastfm.js`: top artistas e similares do Last.fm.
+- `src/recomendar.js`: junta as fontes, calcula as recomendações e monta os grupos de gosto.
+- `src/spotify.js`: login (PKCE), top artistas e busca de artistas no Spotify.
+- `src/lastfm.js`: top artistas, similares e tags do Last.fm.
 - `src/deezer.js`: fotos e artistas relacionados.
 - `src/preload.js`: ponte segura entre a interface e o processo principal.
 - `src/renderer/`: interface (HTML, CSS, JS).
-- `src/dados.json`: lista curada da aba "Curadas", escrita à mão a partir do gosto do autor.
 
 ## Limitações conhecidas
 
-- O login do Spotify foi testado com um servidor simulado, não com uma conta real.
-- Os links do Spotify das recomendações abrem a busca pelo nome, não a página do artista.
-- A aba "Curadas" é uma lista fixa do autor, não personalizada.
-- Alguns itens da lista curada aparecem no Spotify como não tocáveis em certas contas.
+- A busca de artistas e os gêneros do Spotify ainda não foram testados com uma conta real.
+- Sem Spotify e sem chave do Last.fm não há gêneros, então a Curadoria fica sem grupos.
+- "Longo prazo" no Last.fm é o histórico inteiro, inclusive o que você ouvia anos atrás.

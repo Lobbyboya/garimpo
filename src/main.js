@@ -226,10 +226,6 @@ ipcMain.handle("spotify:desconectar", () => {
   return publico(config);
 });
 
-ipcMain.handle("curadas:get", () => {
-  return JSON.parse(fs.readFileSync(path.join(__dirname, "dados.json"), "utf8"));
-});
-
 ipcMain.handle("cache:get", () => lerJson(arquivo("cache.json"), null));
 
 ipcMain.handle("recs:gerar", async (e, opcoes) => {
@@ -242,17 +238,20 @@ ipcMain.handle("recs:gerar", async (e, opcoes) => {
     avisos.push("Spotify: " + erro.message);
   }
 
+  const escolhas = {
+    periodo: opcoes?.periodo || "longo",
+    sementes: Math.min(Math.max(Number(opcoes?.sementes) || 20, 1), 50),
+  };
   const resultado = await recomendar.gerar({
     fontes: {
       spotifyToken,
       lastfm: config.apiKey && config.usuario ? { apiKey: config.apiKey, usuario: config.usuario } : null,
       manual: config.manual,
     },
-    periodo: opcoes?.periodo || "longo",
-    sementes: Math.min(Math.max(Number(opcoes?.sementes) || 20, 1), 50),
+    ...escolhas,
     progresso: (msg) => e.sender.send("recs:progresso", msg),
   });
-  const cache = { ...resultado, avisos: [...avisos, ...resultado.avisos], geradoEm: new Date().toISOString() };
+  const cache = { ...resultado, opcoes: escolhas, avisos: [...avisos, ...resultado.avisos], geradoEm: new Date().toISOString() };
   salvarJson(arquivo("cache.json"), cache);
   return cache;
 });

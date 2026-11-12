@@ -4,8 +4,7 @@ const $ = (id) => document.getElementById(id);
 const estado = {
   aba: "voce",
   config: { usuario: "", temChave: false, spotifyConectado: false, spotifyNome: "", spotifyClientId: "", manual: [] },
-  curadas: { clusters: {}, recs: [] },
-  clusterAtivo: null,
+  grupoAtivo: null,
   auto: null, // último resultado gerado (cache ou recém-gerado)
 };
 
@@ -57,45 +56,69 @@ function atualizarSub() {
     : "Descubra artistas novos a partir do que você já ouve.";
 }
 
-// ---------- Aba "Para você" ----------
+// ---------- Cartão de artista (usado nas duas abas) ----------
+
+function cartao(r, modo, maior) {
+  const c = document.createElement("div");
+  c.className = "card";
+  const extra = r.lastfm
+    ? `<a class="listen fraco" href="${esc(r.lastfm)}" target="_blank">Last.fm</a>`
+    : r.deezer ? `<a class="listen fraco" href="${esc(r.deezer)}" target="_blank">Deezer</a>` : "";
+  const foto = r.img
+    ? `<img src="${esc(r.img)}" alt="" loading="lazy">`
+    : `<div class="semfoto">${esc(r.nome.trim().charAt(0).toUpperCase())}</div>`;
+  const genero = r.genero ? `<span class="tag">${esc(r.genero)}</span>` : "";
+  const mostrar = r.sementes.slice(0, 4);
+  const resto = r.sementes.length - mostrar.length;
+  const chips = `<div class="seeds">${mostrar.map((s) => `<span>${esc(s)}</span>`).join("")}${resto > 0 ? `<span>+${resto}</span>` : ""}</div>`;
+
+  let meio;
+  if (modo === "curadoria") {
+    const [a, b] = r.sementes;
+    meio = `<div class="why">Na linha de ${esc(a)}${b ? " e " + esc(b) : ""}, que você ouve${r.sementes.length > 2 ? `, e de mais ${r.sementes.length - 2}` : ""}.</div>`;
+  } else {
+    meio = `
+      <div class="barra"><div></div></div>
+      <div class="why">Parecido com ${r.sementes.length} ${r.sementes.length === 1 ? "artista seu" : "artistas seus"}:</div>
+      ${chips}`;
+  }
+
+  c.innerHTML = `
+    <div class="head">
+      ${foto}
+      <div>
+        <h3>${esc(r.nome)}</h3>
+        ${genero}
+      </div>
+    </div>
+    ${meio}
+    <div class="links">
+      <a class="listen" href="${esc(r.spotify)}" target="_blank">${r.spotifyDireto ? "Ouvir no Spotify →" : "Buscar no Spotify →"}</a>
+      ${extra}
+    </div>`;
+  const barra = c.querySelector(".barra > div");
+  if (barra) {
+    const pct = Math.max(4, Math.round((r.pontos / maior) * 100));
+    barra.style.width = pct + "%"; // via CSSOM: a CSP bloqueia atributos style inline
+    barra.parentElement.title = `Afinidade ${pct}%`;
+  }
+  return c;
+}
+
+function combina(r, termo) {
+  return !termo || [r.nome, r.genero, r.grupo, ...r.sementes].join(" ").toLowerCase().includes(termo);
+}
+
+// ---------- Aba "Para você": ranking geral ----------
 
 function renderAuto() {
   const grid = $("grid-voce");
   grid.innerHTML = "";
-  if (!estado.auto) {
-    if (!temFonte()) status("Abra Configurações e escolha de onde o Garimpo tira o seu gosto musical.");
-    return 0;
-  }
+  if (!estado.auto) return 0;
   const termo = termoBusca();
-  const lista = estado.auto.recs.filter((r) =>
-    !termo || (r.nome + " " + r.sementes.join(" ")).toLowerCase().includes(termo)
-  );
+  const lista = estado.auto.recs.filter((r) => combina(r, termo));
   const maior = estado.auto.recs[0]?.pontos || 1;
-  for (const r of lista) {
-    const c = document.createElement("div");
-    c.className = "card";
-    const pct = Math.max(4, Math.round((r.pontos / maior) * 100));
-    const mostrar = r.sementes.slice(0, 4);
-    const resto = r.sementes.length - mostrar.length;
-    const extra = r.lastfm
-      ? `<a class="listen fraco" href="${esc(r.lastfm)}" target="_blank">Last.fm</a>`
-      : r.deezer ? `<a class="listen fraco" href="${esc(r.deezer)}" target="_blank">Deezer</a>` : "";
-    c.innerHTML = `
-      <div class="head">
-        ${r.img ? `<img src="${esc(r.img)}" alt="" loading="lazy">` : `<div class="semfoto">${esc(r.nome.trim().charAt(0).toUpperCase())}</div>`}
-        <h3>${esc(r.nome)}</h3>
-      </div>
-      <div class="barra" title="Afinidade ${pct}%"><div></div></div>
-      <div class="why">Parecido com ${r.sementes.length} ${r.sementes.length === 1 ? "artista seu" : "artistas seus"}:</div>
-      <div class="seeds">${mostrar.map((s) => `<span>${esc(s)}</span>`).join("")}${resto > 0 ? `<span>+${resto}</span>` : ""}</div>
-      <div class="links">
-        <a class="listen" href="${esc(r.spotify)}" target="_blank">Spotify →</a>
-        ${extra}
-      </div>`;
-    // Largura via CSSOM: a CSP bloqueia atributos style inline.
-    c.querySelector(".barra > div").style.width = pct + "%";
-    grid.appendChild(c);
-  }
+  for (const r of lista) grid.appendChild(cartao(r, "ranking", maior));
   return lista.length;
 }
 
@@ -109,11 +132,15 @@ function descreverAuto() {
   $("avisos").textContent = (a.avisos || []).join(" ");
 }
 
+let gerando = false;
+
 async function gerar() {
+  if (gerando) return;
   if (!temFonte()) {
     abrirConfig();
     return;
   }
+  gerando = true;
   const botao = $("gerar");
   botao.disabled = true;
   $("avisos").textContent = "";
@@ -126,72 +153,84 @@ async function gerar() {
   } catch (e) {
     status(limparErro(e), true);
   } finally {
+    gerando = false;
     botao.disabled = false;
+    montarFiltros();
     render();
   }
 }
 
-// ---------- Aba "Curadas" ----------
+// ---------- Aba "Curadoria": as recomendações organizadas pelos seus grupos de gosto ----------
 
-function renderCuradas() {
-  const termo = termoBusca();
-  const grid = $("grid-curadas");
+const POR_GRUPO = 8;
+
+function gruposAtuais() {
+  return estado.auto?.grupos || [];
+}
+
+function listaCuradoria() {
+  const recs = estado.auto.recs;
+  if (estado.grupoAtivo) return recs.filter((r) => r.grupo === estado.grupoAtivo);
+  // "Todos": os melhores de cada grupo, intercalados, para nenhum estilo dominar a tela.
+  const filas = gruposAtuais().map((g) => recs.filter((r) => r.grupo === g.nome).slice(0, POR_GRUPO));
+  const saida = [];
+  for (let i = 0; i < POR_GRUPO; i++) for (const fila of filas) if (fila[i]) saida.push(fila[i]);
+  return saida;
+}
+
+function renderCuradoria() {
+  const grid = $("grid-curadoria");
+  const info = $("curadoriaInfo");
   grid.innerHTML = "";
-  const lista = estado.curadas.recs.filter((r) =>
-    (!estado.clusterAtivo || r.cluster === estado.clusterAtivo) &&
-    (!termo || (r.name + " " + r.genre + " " + r.cluster + " " + r.seeds.join(" ")).toLowerCase().includes(termo))
-  );
-  for (const r of lista) {
-    const c = document.createElement("div");
-    c.className = "card";
-    const url = r.spotify
-      ? "https://open.spotify.com/artist/" + r.spotify
-      : "https://open.spotify.com/search/" + encodeURIComponent(r.name);
-    c.innerHTML = `
-      <div class="head">
-        ${r.img ? `<img src="${esc(r.img)}" alt="" loading="lazy">` : ""}
-        <div>
-          <h3>${esc(r.name)}</h3>
-          <span class="tag">${esc(r.genre)}</span>
-        </div>
-      </div>
-      <div class="why">${esc(r.why)}</div>
-      <div class="seeds">${r.seeds.map((s) => `<span>${esc(s)}</span>`).join("")}</div>
-      <div class="links"><a class="listen" href="${esc(url)}" target="_blank">Ouvir no Spotify →</a></div>
-      ${r.restrito ? `<div class="restrito">Pode não tocar na sua conta (restrição de licença no Spotify).</div>` : ""}`;
-    grid.appendChild(c);
+  if (!estado.auto) {
+    info.textContent = "";
+    return 0;
   }
+  const grupos = gruposAtuais();
+  if (!grupos.length) {
+    info.textContent = estado.auto.grupos
+      ? "Não deu para identificar os estilos dos seus artistas. Conecte o Spotify ou configure o Last.fm em Configurações e clique em Garimpar."
+      : "Clique em Garimpar para montar a sua curadoria.";
+    return -1;
+  }
+  info.textContent = `${grupos.length} grupos de gosto, montados a partir dos estilos dos artistas que você mais ouve. A curadoria se refaz sozinha uma vez por dia, ao abrir o app.`;
+  const termo = termoBusca();
+  const lista = listaCuradoria().filter((r) => combina(r, termo));
+  for (const r of lista) grid.appendChild(cartao(r, "curadoria"));
   return lista.length;
 }
 
 function montarFiltros() {
   const box = $("clusters");
   box.innerHTML = "";
+  const grupos = gruposAtuais();
+  if (!grupos.some((g) => g.nome === estado.grupoAtivo)) estado.grupoAtivo = null;
+  if (!grupos.length) return;
   const chip = (texto, valor, dica) => {
     const b = document.createElement("button");
-    b.className = "chip" + (estado.clusterAtivo === valor ? " active" : "");
+    b.className = "chip" + (estado.grupoAtivo === valor ? " active" : "");
     b.textContent = texto;
     if (dica) b.title = dica;
-    b.onclick = () => { estado.clusterAtivo = valor; montarFiltros(); render(); };
+    b.onclick = () => { estado.grupoAtivo = valor; montarFiltros(); render(); };
     box.appendChild(b);
   };
   chip("Todos", null);
-  for (const [nome, dica] of Object.entries(estado.curadas.clusters)) chip(nome, nome, dica);
+  for (const g of grupos) chip(g.nome, g.nome, "Seus artistas: " + g.artistas.join(", "));
 }
 
 // ---------- Geral ----------
 
 function render() {
-  const n = estado.aba === "voce" ? renderAuto() : renderCuradas();
-  const semDados = estado.aba === "voce" && !estado.auto;
-  $("empty").style.display = !semDados && n === 0 ? "block" : "none";
+  const n = estado.aba === "voce" ? renderAuto() : renderCuradoria();
+  $("empty").style.display = estado.auto && n === 0 ? "block" : "none";
+  if (!estado.auto && !gerando && !temFonte()) status("Abra Configurações e escolha de onde o Garimpo tira o seu gosto musical.");
 }
 
 function trocarAba(aba) {
   estado.aba = aba;
   document.querySelectorAll(".aba").forEach((b) => b.classList.toggle("ativa", b.dataset.aba === aba));
   $("painel-voce").hidden = aba !== "voce";
-  $("painel-curadas").hidden = aba !== "curadas";
+  $("painel-curadoria").hidden = aba !== "curadoria";
   render();
 }
 
@@ -241,8 +280,8 @@ async function salvarCampos() {
 $("cfgSalvar").onclick = async () => {
   await salvarCampos();
   $("config").close();
-  if (temFonte() && !estado.auto) status("Tudo pronto. Clique em Garimpar.");
   render();
+  if (temFonte() && !estado.auto) gerar();
 };
 $("cfgCancelar").onclick = () => $("config").close();
 
@@ -334,19 +373,25 @@ $("busca").addEventListener("input", render);
 document.querySelectorAll(".aba").forEach((b) => (b.onclick = () => trocarAba(b.dataset.aba)));
 window.api.aoProgresso((m) => status(m));
 
+const UM_DIA = 24 * 60 * 60 * 1000;
+
 (async function iniciar() {
-  const [config, curadas, cache] = await Promise.all([
-    window.api.lerConfig(), window.api.lerCuradas(), window.api.lerCache(),
-  ]);
+  const [config, cache] = await Promise.all([window.api.lerConfig(), window.api.lerCache()]);
   estado.config = config;
-  estado.curadas = curadas;
   if (cache?.recs) {
     estado.auto = cache;
-    if (PERIODOS[cache.periodo]) $("periodo").value = cache.periodo;
+    if (PERIODOS[cache.opcoes?.periodo]) $("periodo").value = cache.opcoes.periodo;
+    if (cache.opcoes?.sementes) $("sementes").value = String(cache.opcoes.sementes);
     descreverAuto();
   }
   atualizarSub();
   montarFiltros();
   render();
-  if (!temFonte()) abrirConfig();
+  if (!temFonte()) {
+    abrirConfig();
+    return;
+  }
+  // Curadoria dinâmica: refaz sozinha se o último resultado tem mais de um dia (ou é de uma versão antiga).
+  const idade = cache?.geradoEm ? Date.now() - new Date(cache.geradoEm).getTime() : Infinity;
+  if (!cache?.recs || !cache.grupos || idade > UM_DIA) gerar();
 })();

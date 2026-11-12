@@ -35,4 +35,13 @@ async function similares(apiKey, nome) {
   return (r.similarartists?.artist || []).map((s) => ({ nome: s.name, match: Number(s.match) || 0, lastfm: s.url }));
 }
 
-module.exports = { topArtistas, similares };
+// Tags mais votadas do artista (gêneros, na prática), da mais forte para a mais fraca.
+async function tags(apiKey, nome) {
+  const r = await chamar({ method: "artist.gettoptags", artist: nome, autocorrect: 1 }, apiKey);
+  return (r.toptags?.tag || [])
+    .filter((t) => Number(t.count) >= 20)
+    .slice(0, 6)
+    .map((t) => t.name);
+}
+
+module.exports = { topArtistas, similares, tags };
