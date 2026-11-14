@@ -91,3 +91,7 @@ pelo Windows. Nada disso fica na pasta do projeto.
 - A busca de artistas e os gêneros do Spotify ainda não foram testados com uma conta real.
 - Sem Spotify e sem chave do Last.fm não há gêneros, então a Curadoria fica sem grupos.
 - "Longo prazo" no Last.fm é o histórico inteiro, inclusive o que você ouvia anos atrás.
+
+## Licença
+
+[MIT](LICENSE)
