@@ -3,6 +3,8 @@
 App de desktop (Electron) que garimpa artistas novos a partir do que você já ouve.
 Cada pessoa usa as próprias contas; nada sai do seu computador além das consultas às APIs.
 
+![Aba Para você do Garimpo, com cartões de artistas recomendados](docs/para-voce.png)
+
 ## De onde vem o seu gosto musical
 
 Use pelo menos uma das três fontes, em **Configurações**:
