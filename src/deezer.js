@@ -1,7 +1,13 @@
-// API pública do Deezer (sem chave e sem conta): fotos de artistas e artistas relacionados.
+// API pública do Deezer (sem chave e sem conta): fotos de artistas, artistas relacionados e top músicas.
 const API = "https://api.deezer.com";
 
-const normalizar = (nome) => nome.trim().toLowerCase();
+const normalizar = (nome) =>
+  String(nome || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
 const espera = (ms) => new Promise((ok) => setTimeout(ok, ms));
 
 async function chamar(caminho, tentativa = 0) {
@@ -28,11 +34,18 @@ function converter(a) {
   return { id: a.id, nome: a.name, foto: foto(a), link: a.link };
 }
 
-// Só aceita nome idêntico, para não confundir com outro artista. Devolve null se não achar.
+// Busca artista com tolerância para acentos e prefixos comuns.
 async function buscarArtista(nome) {
   try {
     const dados = await chamar("/search/artist?limit=5&q=" + encodeURIComponent(nome));
-    const achado = (dados.data || []).find((a) => normalizar(a.name) === normalizar(nome));
+    const lista = dados.data || [];
+    if (!lista.length) return null;
+    const alvo = normalizar(nome);
+    const alvoSemThe = alvo.replace(/^the\s+/, "");
+    const achado =
+      lista.find((a) => normalizar(a.name) === alvo) ||
+      lista.find((a) => normalizar(a.name).replace(/^the\s+/, "") === alvoSemThe) ||
+      (lista[0] && normalizar(lista[0].name).includes(alvoSemThe) ? lista[0] : null);
     return achado ? converter(achado) : null;
   } catch {
     return null;
@@ -48,4 +61,21 @@ async function relacionados(id) {
   }
 }
 
-module.exports = { buscarArtista, relacionados };
+// Top músicas do artista com preview de áudio (30s).
+async function topFaixas(id, limite = 3) {
+  if (!id) return [];
+  try {
+    const dados = await chamar(`/artist/${id}/top?limit=${limite}`);
+    return (dados.data || []).map((t) => ({
+      id: t.id,
+      titulo: t.title,
+      preview: t.preview, // áudio mp3 de 30s
+      link: t.link,
+      duracao: t.duration,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+module.exports = { buscarArtista, relacionados, topFaixas };

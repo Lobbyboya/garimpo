@@ -41,7 +41,7 @@ function salvarConfig(config) {
   salvarJson(arquivo("config.json"), config);
 }
 
-// O token de renovação do Spotify é guardado cifrado pelo Windows (DPAPI), quando disponível.
+// Os tokens do Spotify são guardados cifrados pelo sistema (DPAPI no Windows, chaveiro no Linux), quando disponível.
 function guardarSegredo(texto) {
   return safeStorage.isEncryptionAvailable()
     ? { enc: safeStorage.encryptString(texto).toString("base64") }
@@ -83,12 +83,21 @@ async function tokenSpotify() {
   const config = lerConfig();
   const sp = config.spotify;
   if (!sp?.refresh) return null;
-  if (sp.access && sp.expira > Date.now() + 60_000) return sp.access;
+  // Versões antigas guardavam o token de acesso em texto puro (string).
+  const acesso = typeof sp.access === "string" ? sp.access : lerSegredo(sp.access);
+  if (acesso && sp.expira > Date.now() + 60_000) return acesso;
+  const refresh = lerSegredo(sp.refresh);
+  if (!refresh) {
+    // Não deu para decifrar (ex.: o chaveiro do sistema foi trocado): o login guardado não serve mais.
+    config.spotify = null;
+    salvarConfig(config);
+    throw new Error("O login guardado não pôde ser lido. Conecte o Spotify de novo em Configurações.");
+  }
   try {
-    const novo = await spotify.renovar(clientIdDe(config), lerSegredo(sp.refresh));
+    const novo = await spotify.renovar(clientIdDe(config), refresh);
     config.spotify = {
       ...sp,
-      access: novo.access,
+      access: guardarSegredo(novo.access),
       expira: novo.expira,
       refresh: novo.refresh ? guardarSegredo(novo.refresh) : sp.refresh,
     };
@@ -214,10 +223,12 @@ ipcMain.handle("spotify:conectar", async () => {
     // sem nome: segue conectado mesmo assim
   }
   const atual = lerConfig();
-  atual.spotify = { refresh: guardarSegredo(tokens.refresh), access: tokens.access, expira: tokens.expira, nome };
+  atual.spotify = { refresh: guardarSegredo(tokens.refresh), access: guardarSegredo(tokens.access), expira: tokens.expira, nome };
   salvarConfig(atual);
   return publico(atual);
 });
+
+ipcMain.handle("spotify:cancelar", () => spotify.cancelarLogin());
 
 ipcMain.handle("spotify:desconectar", () => {
   const config = lerConfig();
@@ -249,7 +260,9 @@ ipcMain.handle("recs:gerar", async (e, opcoes) => {
       manual: config.manual,
     },
     ...escolhas,
-    progresso: (msg) => e.sender.send("recs:progresso", msg),
+    progresso: (msg) => {
+      if (!e.sender.isDestroyed()) e.sender.send("recs:progresso", msg); // a janela pode ter sido fechada
+    },
   });
   const cache = { ...resultado, opcoes: escolhas, avisos: [...avisos, ...resultado.avisos], geradoEm: new Date().toISOString() };
   salvarJson(arquivo("cache.json"), cache);

@@ -247,7 +247,7 @@ function pintarConfig() {
     ? "Conectado" + (c.spotifyNome ? " como " + c.spotifyNome : "")
     : "Não conectado.";
   sp.classList.toggle("ok", c.spotifyConectado);
-  $("spConectar").textContent = c.spotifyConectado ? "Conectar outra conta" : "Conectar ao Spotify";
+  if (!conectando) $("spConectar").textContent = c.spotifyConectado ? "Conectar outra conta" : "Conectar ao Spotify";
   $("spSair").hidden = !c.spotifyConectado;
 
   const lf = $("lfEstado");
@@ -283,9 +283,23 @@ $("cfgSalvar").onclick = async () => {
   render();
   if (temFonte() && !estado.auto) gerar();
 };
-$("cfgCancelar").onclick = () => $("config").close();
+$("cfgCancelar").onclick = () => {
+  if (conectando) window.api.cancelarSpotify();
+  $("config").close();
+};
+
+$("config").addEventListener("close", () => {
+  if (conectando) window.api.cancelarSpotify();
+});
+
+let conectando = false;
 
 $("spConectar").onclick = async () => {
+  // Durante o login o mesmo botão cancela, para ninguém ficar preso esperando o prazo de 5 minutos.
+  if (conectando) {
+    await window.api.cancelarSpotify();
+    return;
+  }
   const botao = $("spConectar");
   try {
     await salvarCampos();
@@ -293,13 +307,15 @@ $("spConectar").onclick = async () => {
       msg("spMsg", "Cole o Client ID primeiro. Veja \"Como conseguir um Client ID\".", "erro");
       return;
     }
-    botao.disabled = true;
+    conectando = true;
+    botao.textContent = "Cancelar login";
     msg("spMsg", "Abrimos o Spotify no seu navegador. Autorize lá e volte para cá.");
     estado.config = await window.api.conectarSpotify();
     msg("spMsg", "Spotify conectado.", "ok");
   } catch (e) {
     msg("spMsg", limparErro(e), "erro");
   } finally {
+    conectando = false;
     botao.disabled = false;
     atualizarSub();
     pintarConfig();

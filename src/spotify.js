@@ -21,7 +21,7 @@ let loginAtual = null; // servidor do login em andamento, para cancelar se a pes
 
 // Abre o navegador na tela de autorização e espera o Spotify chamar http://127.0.0.1:PORTA/callback.
 function esperarCodigo(clientId, abrirNavegador) {
-  if (loginAtual) loginAtual.close();
+  cancelarLogin();
   const verificador = b64url(crypto.randomBytes(64));
   const desafio = b64url(crypto.createHash("sha256").update(verificador).digest());
   const estado = b64url(crypto.randomBytes(16));
@@ -47,12 +47,17 @@ function esperarCodigo(clientId, abrirNavegador) {
     });
 
     function finalizar() {
-      clearTimeout(prazo);
       servidor.close();
-      if (loginAtual === servidor) loginAtual = null;
+      servidor.closeAllConnections(); // o navegador pode manter a conexão aberta (keep-alive)
     }
 
-    servidor.on("close", () => erro(new Error("Login cancelado.")));
+    // Fechar o servidor por qualquer motivo (sucesso, erro, prazo ou cancelamento) limpa tudo.
+    // Se a promessa já foi resolvida, o erro abaixo é ignorado.
+    servidor.on("close", () => {
+      clearTimeout(prazo);
+      if (loginAtual === servidor) loginAtual = null;
+      erro(new Error("Login cancelado."));
+    });
     servidor.on("error", (e) => {
       finalizar();
       erro(new Error(e.code === "EADDRINUSE"
@@ -80,8 +85,29 @@ function esperarCodigo(clientId, abrirNavegador) {
   });
 }
 
+// Cancela o login em andamento, se houver.
+function cancelarLogin() {
+  if (loginAtual) {
+    loginAtual.close();
+    loginAtual.closeAllConnections();
+  }
+}
+
+const TEMPO_LIMITE = 15000;
+
+// fetch com tempo limite, para uma resposta que nunca chega não travar o app.
+async function buscar(url, opcoes = {}) {
+  try {
+    return await fetch(url, { ...opcoes, signal: AbortSignal.timeout(TEMPO_LIMITE) });
+  } catch (e) {
+    throw new Error(e.name === "TimeoutError"
+      ? "O Spotify demorou demais para responder. Tente de novo."
+      : "Não foi possível falar com o Spotify. Confira a sua conexão.");
+  }
+}
+
 async function pedirToken(params) {
-  const resp = await fetch(CONTAS + "/api/token", {
+  const resp = await buscar(CONTAS + "/api/token", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams(params),
@@ -118,7 +144,7 @@ function renovar(clientId, refresh) {
 }
 
 async function chamar(token, caminho) {
-  const resp = await fetch(API + caminho, { headers: { Authorization: "Bearer " + token } });
+  const resp = await buscar(API + caminho, { headers: { Authorization: "Bearer " + token } });
   if (resp.status === 403) {
     throw new Error("O Spotify recusou o acesso. A conta precisa estar na lista de usuários do app (User Management) no painel de desenvolvedor.");
   }
@@ -148,10 +174,28 @@ async function buscarArtista(token, nome) {
   const a = (dados.artists?.items || []).find((x) => x?.name?.trim().toLowerCase() === alvo);
   if (!a) return null;
   return {
+    id: a.id,
     link: a.external_urls?.spotify || null,
     img: a.images?.[1]?.url || a.images?.[0]?.url || null,
     generos: a.genres || [],
   };
 }
 
-module.exports = { REDIRECT, login, renovar, perfil, topArtistas, buscarArtista };
+// Top músicas do artista no Spotify
+async function topFaixas(token, artistId, mercado = "BR") {
+  if (!artistId) return [];
+  try {
+    const dados = await chamar(token, `/artists/${artistId}/top-tracks?market=${mercado}`);
+    return (dados.tracks || []).slice(0, 3).map((t) => ({
+      id: t.id,
+      titulo: t.name,
+      preview: t.preview_url || null,
+      link: t.external_urls?.spotify || null,
+      duracao: Math.round(t.duration_ms / 1000),
+    }));
+  } catch {
+    return [];
+  }
+}
+
+module.exports = { REDIRECT, login, cancelarLogin, renovar, perfil, topArtistas, buscarArtista, topFaixas };

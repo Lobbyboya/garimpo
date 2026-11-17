@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld("api", {
   testarLastfm: (dados) => ipcRenderer.invoke("lastfm:testar", dados),
   removerLastfm: () => ipcRenderer.invoke("lastfm:remover"),
   conectarSpotify: () => ipcRenderer.invoke("spotify:conectar"),
+  cancelarSpotify: () => ipcRenderer.invoke("spotify:cancelar"),
   desconectarSpotify: () => ipcRenderer.invoke("spotify:desconectar"),
   lerCache: () => ipcRenderer.invoke("cache:get"),
   gerar: (opcoes) => ipcRenderer.invoke("recs:gerar", opcoes),

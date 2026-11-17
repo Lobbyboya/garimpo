@@ -2,7 +2,7 @@
 const API = "https://ws.audioscrobbler.com/2.0/";
 
 const ERROS = {
-  6: "Usuário do Last.fm não encontrado.",
+  6: "Não encontrado no Last.fm. Confira o nome de usuário.", // código 6 vale para usuário e artista
   10: "Chave de API do Last.fm inválida.",
   26: "Chave de API suspensa pelo Last.fm.",
   29: "Limite de requisições do Last.fm atingido. Espere um pouco e tente de novo.",
@@ -13,7 +13,14 @@ async function chamar(params, apiKey) {
   for (const [k, v] of Object.entries({ ...params, api_key: apiKey, format: "json" })) {
     url.searchParams.set(k, v);
   }
-  const resp = await fetch(url, { headers: { "User-Agent": "Garimpo/1.0" } });
+  let resp;
+  try {
+    resp = await fetch(url, { headers: { "User-Agent": "Garimpo/1.0" }, signal: AbortSignal.timeout(15000) });
+  } catch (e) {
+    throw new Error(e.name === "TimeoutError"
+      ? "O Last.fm demorou demais para responder. Tente de novo."
+      : "Não foi possível falar com o Last.fm. Confira a sua conexão.");
+  }
   let dados;
   try {
     dados = await resp.json();
