@@ -17,4 +17,10 @@ contextBridge.exposeInMainWorld("api", {
     return () => ipcRenderer.removeListener("recs:progresso", ouvinte);
   },
   abrirLink: (url) => ipcRenderer.send("abrir-link", url),
+  checarAtualizacao: () => ipcRenderer.invoke("updater:checar"),
+  aoNovaVersao: (fn) => {
+    const ouvinte = (_e, info) => fn(info);
+    ipcRenderer.on("updater:nova-versao", ouvinte);
+    return () => ipcRenderer.removeListener("updater:nova-versao", ouvinte);
+  },
 });

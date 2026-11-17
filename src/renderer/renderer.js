@@ -257,6 +257,11 @@ function pintarConfig() {
   lf.classList.toggle("ok", temLastfm());
   $("lfGuia").textContent = temLastfm() ? "Trocar usuário ou chave" : "Configurar passo a passo";
   $("lfRemover").hidden = !c.temChave;
+
+  const upd = $("updEstado");
+  if (upd) {
+    upd.textContent = `Garimpo v${c.versao || "1.0.0"}`;
+  }
 }
 
 function abrirConfig() {
@@ -388,6 +393,48 @@ $("gerar").onclick = gerar;
 $("busca").addEventListener("input", render);
 document.querySelectorAll(".aba").forEach((b) => (b.onclick = () => trocarAba(b.dataset.aba)));
 window.api.aoProgresso((m) => status(m));
+
+// ---------- Atualizador ----------
+
+let infoAtualizacao = null;
+
+function exibirBannerAtualizacao(info) {
+  infoAtualizacao = info;
+  $("versaoNovaTexto").textContent = `v${info.novaVersao}`;
+  $("bannerAtualizacao").hidden = false;
+}
+
+$("btnBaixarAtualizacao").onclick = () => {
+  const link = infoAtualizacao?.downloadUrl || infoAtualizacao?.url;
+  if (link) window.api.abrirLink(link);
+};
+
+$("btnFecharBanner").onclick = () => {
+  $("bannerAtualizacao").hidden = true;
+};
+
+$("btnChecarUpdate").onclick = async () => {
+  const botao = $("btnChecarUpdate");
+  try {
+    botao.disabled = true;
+    msg("updMsg", "Consultando GitHub por novas versões...");
+    const info = await window.api.checarAtualizacao();
+    if (info.temNova) {
+      msg("updMsg", `Nova versão disponível: v${info.novaVersao}!`, "ok");
+      exibirBannerAtualizacao(info);
+    } else {
+      msg("updMsg", info.mensagem || "Você já está na versão mais recente.", "ok");
+    }
+  } catch (e) {
+    msg("updMsg", limparErro(e), "erro");
+  } finally {
+    botao.disabled = false;
+  }
+};
+
+window.api.aoNovaVersao((info) => {
+  exibirBannerAtualizacao(info);
+});
 
 const UM_DIA = 24 * 60 * 60 * 1000;
 

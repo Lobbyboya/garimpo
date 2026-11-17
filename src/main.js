@@ -5,6 +5,7 @@ const fs = require("fs");
 const lastfm = require("./lastfm");
 const spotify = require("./spotify");
 const recomendar = require("./recomendar");
+const updater = require("./updater");
 
 // Client ID do Spotify que já vem no app. Vazio = cada pessoa informa o seu em Configurações.
 // O Client ID não é segredo (o login usa PKCE), mas o Spotify limita cada um a 5 usuários.
@@ -67,6 +68,7 @@ function clientIdDe(config) {
 // O que a interface pode ver: nunca a chave nem os tokens.
 function publico(config = lerConfig()) {
   return {
+    versao: app.getVersion(),
     usuario: config.usuario,
     temChave: Boolean(config.apiKey),
     spotifyClientId: config.spotifyClientId,
@@ -143,11 +145,23 @@ function criarJanela() {
   });
 
   win.loadFile(path.join(__dirname, "renderer", "index.html"));
+
+  // Checa atualizações silenciosamente em segundo plano após inicialização
+  setTimeout(async () => {
+    try {
+      const info = await updater.checarAtualizacao({ versaoAtual: app.getVersion() });
+      if (info?.temNova && !win.isDestroyed()) {
+        win.webContents.send("updater:nova-versao", info);
+      }
+    } catch {
+      // Ignora erro em verificação de fundo
+    }
+  }, 4000);
 }
 
 const HOSTS_PERMITIDOS = [
   "open.spotify.com", "accounts.spotify.com", "developer.spotify.com",
-  "www.last.fm", "last.fm", "www.deezer.com",
+  "www.last.fm", "last.fm", "www.deezer.com", "github.com",
 ];
 
 function abrirExterno(url) {
@@ -238,6 +252,8 @@ ipcMain.handle("spotify:desconectar", () => {
 });
 
 ipcMain.handle("cache:get", () => lerJson(arquivo("cache.json"), null));
+
+ipcMain.handle("updater:checar", () => updater.checarAtualizacao({ versaoAtual: app.getVersion() }));
 
 ipcMain.handle("recs:gerar", async (e, opcoes) => {
   const config = lerConfig();

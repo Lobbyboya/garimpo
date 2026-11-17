@@ -17,6 +17,17 @@
   <button class="botao secundario" id="abrirConfig">Configurações</button>
 </header>
 
+<div id="bannerAtualizacao" class="banner-update" hidden>
+  <div class="banner-texto">
+    <span class="banner-icone">✨</span>
+    <span>Nova versão disponível: <strong id="versaoNovaTexto"></strong></span>
+  </div>
+  <div class="banner-acoes">
+    <button class="botao" id="btnBaixarAtualizacao">Ver atualização</button>
+    <button class="botao secundario" id="btnFecharBanner">Dispensar</button>
+  </div>
+</div>
+
 <nav class="abas">
   <button class="aba ativa" data-aba="voce">Para você</button>
   <button class="aba" data-aba="curadoria">Curadoria</button>
@@ -92,6 +103,15 @@
     <label>Um por linha. Serve sozinho ou junto com as outras fontes.
       <textarea id="cfgManual" rows="4" spellcheck="false" placeholder="Ex.:&#10;Nujabes&#10;Turnstile"></textarea>
     </label>
+  </section>
+
+  <section class="bloco">
+    <h3>Atualizações</h3>
+    <div class="estado" id="updEstado">Garimpo</div>
+    <div class="acoes esquerda">
+      <button class="botao secundario" id="btnChecarUpdate">Verificar atualizações</button>
+    </div>
+    <div class="msg" id="updMsg"></div>
   </section>
 
   <div class="acoes">

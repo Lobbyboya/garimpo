@@ -79,3 +79,21 @@ dialog input[type=text], dialog input[type=password] { background:var(--bg); }
 .copiar .botao { margin-top:0; padding:5px 10px; }
 code { background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:4px 8px; font-family:Consolas, monospace; font-size:.85rem; color:var(--text); user-select:all; }
 .avisos { color:var(--warn); font-size:.85rem; margin:-6px 0 12px; }
+
+/* Banner de nova versão */
+.banner-update {
+  background: #142219;
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.banner-update[hidden] { display: none; }
+.banner-texto { display: flex; align-items: center; gap: 8px; font-size: .92rem; }
+.banner-icone { font-size: 1.15rem; }
+.banner-acoes { display: flex; gap: 8px; align-items: center; }
