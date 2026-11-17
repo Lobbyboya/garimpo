@@ -1,0 +1,108 @@
+# Publica uma release a cada tag de versão (v1.2.3): gera os instaladores de Windows e Linux
+# e cria a release no GitHub com as notas da versão tiradas do CHANGELOG.md.
+#
+# Para publicar: atualize o CHANGELOG.md, rode `npm version minor` (ou patch/major) e
+# `git push origin main --tags`.
+
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag já existente para (re)publicar, ex.: v1.3.0"
+        required: true
+
+permissions:
+  contents: write
+
+env:
+  TAG: ${{ github.event.inputs.tag || github.ref_name }}
+
+jobs:
+  instaladores:
+    name: Instalador ${{ matrix.nome }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - nome: Windows
+            os: windows-latest
+            alvo: --win nsis
+            arquivos: dist/*.exe
+          - nome: Linux
+            os: ubuntu-latest
+            alvo: --linux AppImage
+            arquivos: dist/*.AppImage
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      - name: Confere se a tag bate com a versão do package.json
+        shell: bash
+        run: |
+          versao=$(node -p "require('./package.json').version")
+          if [ "v$versao" != "$TAG" ]; then
+            echo "::error::A tag $TAG não bate com a versão $versao do package.json."
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Gera o instalador
+        run: npx electron-builder ${{ matrix.alvo }} --publish never
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: instalador-${{ matrix.nome }}
+          path: ${{ matrix.arquivos }}
+          if-no-files-found: error
+
+  release:
+    name: Publica a release
+    needs: instaladores
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: instaladores
+          merge-multiple: true
+
+      - name: Notas da versão (seção do CHANGELOG.md)
+        run: |
+          versao="${TAG#v}"
+          awk -v v="$versao" '
+            index($0, "## [" v "]") == 1 { dentro = 1; next }
+            /^## \[/ { dentro = 0 }
+            /^\[[0-9.]+\]: / { dentro = 0 }
+            dentro
+          ' CHANGELOG.md > notas.md
+          if [ ! -s notas.md ]; then
+            echo "Veja o [CHANGELOG](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md)." > notas.md
+          fi
+          cat notas.md
+
+      - name: Cria ou atualiza a release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          versao="${TAG#v}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release edit "$TAG" --title "Garimpo $versao" --notes-file notas.md --latest
+            gh release upload "$TAG" instaladores/* --clobber
+          else
+            gh release create "$TAG" instaladores/* --title "Garimpo $versao" --notes-file notas.md --latest
+          fi
