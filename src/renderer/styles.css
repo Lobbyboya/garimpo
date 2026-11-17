@@ -97,3 +97,12 @@ code { background:var(--bg); border:1px solid var(--line); border-radius:6px; pa
 .banner-texto { display: flex; align-items: center; gap: 8px; font-size: .92rem; }
 .banner-icone { font-size: 1.15rem; }
 .banner-acoes { display: flex; gap: 8px; align-items: center; }
+
+.previas { margin-left:auto; color:var(--muted); }
+.faixas { list-style:none; margin:10px 0 0; padding:10px 0 0; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:6px; }
+.faixas li { display:flex; align-items:center; gap:8px; font-size:.85rem; min-width:0; }
+.faixas .carregando { color:var(--muted); }
+.faixas .titulo { color:var(--text); text-decoration:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.faixas a.titulo:hover { text-decoration:underline; }
+button.tocar { width:28px; height:28px; flex-shrink:0; border-radius:50%; border:1px solid var(--line); background:var(--bg); color:var(--accent); cursor:pointer; font-size:.7rem; }
+button.tocar:disabled { color:var(--muted); opacity:.5; cursor:default; }

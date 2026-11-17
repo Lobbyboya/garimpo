@@ -6,6 +6,7 @@ const lastfm = require("./lastfm");
 const spotify = require("./spotify");
 const recomendar = require("./recomendar");
 const updater = require("./updater");
+const deezer = require("./deezer");
 
 // Client ID do Spotify que já vem no app. Vazio = cada pessoa informa o seu em Configurações.
 // O Client ID não é segredo (o login usa PKCE), mas o Spotify limita cada um a 5 usuários.
@@ -283,6 +284,32 @@ ipcMain.handle("recs:gerar", async (e, opcoes) => {
   const cache = { ...resultado, opcoes: escolhas, avisos: [...avisos, ...resultado.avisos], geradoEm: new Date().toISOString() };
   salvarJson(arquivo("cache.json"), cache);
   return cache;
+});
+
+// Top músicas de um artista no Deezer, com prévia de 30 s. Com o id do Deezer (quando a
+// recomendação veio de lá) não há risco de pegar outro artista com nome parecido.
+ipcMain.handle("faixas:top", async (_e, { nome, deezerId } = {}) => {
+  let id = /^\d{1,12}$/.test(String(deezerId || "")) ? String(deezerId) : null;
+  if (!id) {
+    const alvo = String(nome || "").trim().slice(0, 200);
+    if (!alvo) return [];
+    id = (await deezer.buscarArtista(alvo))?.id || null;
+  }
+  const faixas = await deezer.topFaixas(id, 3);
+  // Só repassa áudio https do CDN do Deezer, que é o único liberado na CSP.
+  const doDeezer = (url) => {
+    try {
+      const u = new URL(url);
+      return u.protocol === "https:" && u.hostname.endsWith(".dzcdn.net");
+    } catch {
+      return false;
+    }
+  };
+  return faixas.map((f) => ({
+    titulo: String(f.titulo || ""),
+    preview: doDeezer(f.preview) ? f.preview : null,
+    link: f.link || null,
+  }));
 });
 
 ipcMain.on("abrir-link", (_e, url) => abrirExterno(url));

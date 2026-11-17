@@ -36,6 +36,22 @@ async function fetchJson(url, versaoAtual) {
   return resp.json();
 }
 
+// Extensões de instalador por sistema, na ordem de preferência.
+const EXTENSOES = {
+  win32: [".exe", ".msi", ".zip"],
+  linux: [".appimage", ".pacman", ".deb", ".rpm", ".tar.gz"],
+  darwin: [".dmg", ".zip"],
+};
+
+// Escolhe o instalador do sistema atual; null se o release não tem um (aí abre a página do release).
+function escolherInstalador(assets, plataforma = process.platform) {
+  for (const ext of EXTENSOES[plataforma] || []) {
+    const achado = assets.find((a) => (a.name || "").toLowerCase().endsWith(ext));
+    if (achado) return achado;
+  }
+  return null;
+}
+
 async function checarAtualizacao({ versaoAtual, repo = REPO } = {}) {
   const versao = versaoAtual || "1.0.0";
   let release = null;
@@ -75,8 +91,13 @@ async function checarAtualizacao({ versaoAtual, repo = REPO } = {}) {
   if (!release) {
     try {
       const tags = await fetchJson(`https://api.github.com/repos/${repo}/tags`, versao);
-      if (Array.isArray(tags) && tags.length > 0) {
-        const tagMaisNova = tags[0].name;
+      // A API não ordena por versão: escolhe a maior entre as tags que parecem versão (v1.2.3).
+      const versoes = (Array.isArray(tags) ? tags : [])
+        .map((t) => t?.name || "")
+        .filter((nome) => /^v?\d+(\.\d+)*$/i.test(nome))
+        .sort((a, b) => compararVersoes(b, a));
+      if (versoes.length > 0) {
+        const tagMaisNova = versoes[0];
         if (compararVersoes(tagMaisNova, versao) > 0) {
           return {
             temNova: true,
@@ -106,16 +127,7 @@ async function checarAtualizacao({ versaoAtual, repo = REPO } = {}) {
 
   if (compararVersoes(versaoRemota, versao) > 0) {
     const assets = Array.isArray(release.assets) ? release.assets : [];
-    const instalador = assets.find((a) => {
-      const nome = (a.name || "").toLowerCase();
-      return (
-        nome.endsWith(".exe") ||
-        nome.endsWith(".appimage") ||
-        nome.endsWith(".deb") ||
-        nome.endsWith(".rpm") ||
-        nome.endsWith(".zip")
-      );
-    });
+    const instalador = escolherInstalador(assets);
 
     return {
       temNova: true,
@@ -137,4 +149,4 @@ async function checarAtualizacao({ versaoAtual, repo = REPO } = {}) {
   };
 }
 
-module.exports = { checarAtualizacao, compararVersoes };
+module.exports = { checarAtualizacao, compararVersoes, escolherInstalador };

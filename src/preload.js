@@ -16,6 +16,7 @@ contextBridge.exposeInMainWorld("api", {
     ipcRenderer.on("recs:progresso", ouvinte);
     return () => ipcRenderer.removeListener("recs:progresso", ouvinte);
   },
+  topFaixas: (artista) => ipcRenderer.invoke("faixas:top", artista),
   abrirLink: (url) => ipcRenderer.send("abrir-link", url),
   checarAtualizacao: () => ipcRenderer.invoke("updater:checar"),
   aoNovaVersao: (fn) => {
