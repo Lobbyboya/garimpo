@@ -1,7 +1,7 @@
 {
   "name": "garimpo",
   "productName": "Garimpo",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "App de desktop que garimpa artistas novos a partir do que você ouve no Spotify e no Last.fm.",
   "author": "Renan",
   "main": "src/main.js",

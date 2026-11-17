@@ -9,66 +9,100 @@
 </head>
 <body>
 
-<header>
-  <div>
-    <h1>Garimpo</h1>
-    <div class="sub" id="sub">Carregando...</div>
-  </div>
-  <button class="botao secundario" id="abrirConfig">Configurações</button>
-</header>
+<div class="app">
+  <!-- Barra lateral: marca, navegação e de onde vem o seu gosto -->
+  <aside class="lateral">
+    <div class="marca">
+      <img src="icone.png" alt="" class="marca-icone">
+      <span>Garimpo</span>
+    </div>
 
-<div id="bannerAtualizacao" class="banner-update" hidden>
-  <div class="banner-texto">
-    <span class="banner-icone">✨</span>
-    <span>Nova versão disponível: <strong id="versaoNovaTexto"></strong></span>
-  </div>
-  <div class="banner-acoes">
-    <button class="botao" id="btnBaixarAtualizacao">Ver atualização</button>
-    <button class="botao secundario" id="btnFecharBanner">Dispensar</button>
-  </div>
+    <nav class="nav">
+      <button class="aba ativa" data-aba="voce">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/></svg>
+        Para você
+      </button>
+      <button class="aba" data-aba="curadoria">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>
+        Curadoria
+      </button>
+      <button class="aba" data-aba="salvos">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h11v17l-5.5-4-5.5 4z"/></svg>
+        Salvos
+        <span class="contador" id="contSalvos" hidden></span>
+      </button>
+    </nav>
+
+    <div class="lateral-rodape">
+      <div class="fontes" id="sub">Carregando...</div>
+      <button class="nav-item" id="abrirConfig">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        Configurações
+      </button>
+    </div>
+  </aside>
+
+  <main class="principal">
+    <div id="bannerAtualizacao" class="banner-update" hidden>
+      <div class="banner-texto">
+        <span>Nova versão disponível: <strong id="versaoNovaTexto"></strong></span>
+      </div>
+      <div class="banner-acoes">
+        <button class="botao" id="btnBaixarAtualizacao">Ver atualização</button>
+        <button class="botao secundario" id="btnFecharBanner">Dispensar</button>
+      </div>
+    </div>
+
+    <header class="topo">
+      <h1 id="tituloPagina">Para você</h1>
+      <p class="descricao" id="descricaoPagina"></p>
+    </header>
+
+    <div class="barra-ferramentas">
+      <div class="campo-busca">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+        <input type="search" id="busca" placeholder="Buscar por nome, gênero ou artista seu...">
+      </div>
+      <div class="controles" id="controlesGerar">
+        <select id="periodo" title="Período do seu histórico">
+          <option value="longo">Longo prazo</option>
+          <option value="medio">Últimos 6 meses</option>
+          <option value="curto">Último mês</option>
+        </select>
+        <select id="sementes" title="Quantos dos seus artistas mais ouvidos usar">
+          <option value="10">Top 10</option>
+          <option value="20" selected>Top 20</option>
+          <option value="30">Top 30</option>
+          <option value="50">Top 50</option>
+        </select>
+        <button class="botao" id="gerar">Garimpar</button>
+      </div>
+    </div>
+
+    <div class="status" id="status"></div>
+    <div class="avisos" id="avisos"></div>
+
+    <!-- Ranking geral das recomendações -->
+    <section id="painel-voce">
+      <div class="grid" id="grid-voce"></div>
+    </section>
+
+    <!-- Curadoria: as mesmas recomendações, organizadas pelos seus grupos de gosto -->
+    <section id="painel-curadoria" hidden>
+      <div class="status" id="curadoriaInfo"></div>
+      <div class="filters" id="clusters"></div>
+      <div class="grid" id="grid-curadoria"></div>
+    </section>
+
+    <!-- Salvos: artistas guardados para ouvir depois; não mudam quando as recomendações mudam -->
+    <section id="painel-salvos" hidden>
+      <div class="filters" id="filtrosSalvos"></div>
+      <div class="grid" id="grid-salvos"></div>
+    </section>
+
+    <div class="empty" id="empty">Nada encontrado com esse filtro.</div>
+  </main>
 </div>
-
-<nav class="abas">
-  <button class="aba ativa" data-aba="voce">Para você</button>
-  <button class="aba" data-aba="curadoria">Curadoria</button>
-</nav>
-
-<input type="search" id="busca" placeholder="Buscar por nome, gênero ou artista seu...">
-
-<div class="controles">
-  <label>Período
-    <select id="periodo">
-      <option value="longo">Longo prazo (anos)</option>
-      <option value="medio">Últimos 6 meses</option>
-      <option value="curto">Último mês</option>
-    </select>
-  </label>
-  <label>Usar os top
-    <select id="sementes">
-      <option value="10">10 artistas</option>
-      <option value="20" selected>20 artistas</option>
-      <option value="30">30 artistas</option>
-      <option value="50">50 artistas</option>
-    </select>
-  </label>
-  <button class="botao" id="gerar">Garimpar</button>
-</div>
-<div class="status" id="status"></div>
-<div class="avisos" id="avisos"></div>
-
-<!-- Ranking geral das recomendações -->
-<section id="painel-voce">
-  <div class="grid" id="grid-voce"></div>
-</section>
-
-<!-- Curadoria: as mesmas recomendações, organizadas pelos seus grupos de gosto -->
-<section id="painel-curadoria" hidden>
-  <div class="status" id="curadoriaInfo"></div>
-  <div class="filters" id="clusters"></div>
-  <div class="grid" id="grid-curadoria"></div>
-</section>
-
-<div class="empty" id="empty">Nada encontrado com esse filtro.</div>
 
 <!-- Configurações -->
 <dialog id="config">
@@ -105,6 +139,27 @@
     </label>
   </section>
 
+  <section class="bloco" id="blocoTelemetria" hidden>
+    <h3>Estatísticas de uso <span class="opcional">opcional</span></h3>
+    <label class="opcao">
+      <input type="checkbox" id="cfgTelemetria">
+      <span>Enviar estatísticas anônimas para ajudar a melhorar o Garimpo</span>
+    </label>
+    <details class="detalhes">
+      <summary>O que é enviado</summary>
+      <ul>
+        <li>Quando o app é aberto e quais abas e recursos você usa (garimpar, salvar, prévias).</li>
+        <li>No Garimpar: quais fontes estão ligadas (Spotify, Last.fm, lista), período, quantidade de recomendações e quanto tempo levou.</li>
+        <li>Versão do app, sistema operacional e um código aleatório desta instalação.</li>
+      </ul>
+      <p><b>Nunca</b> são enviados: seu nome, e-mail, usuário do Spotify ou Last.fm, chaves, nem os nomes de artistas que você ouve, salva ou recebe.</p>
+    </details>
+    <div class="acoes esquerda">
+      <button class="textual" id="telApagar">Apagar o que já foi enviado</button>
+    </div>
+    <div class="msg" id="telMsg"></div>
+  </section>
+
   <section class="bloco">
     <h3>Atualizações</h3>
     <div class="estado" id="updEstado">Garimpo</div>
@@ -117,6 +172,20 @@
   <div class="acoes">
     <button class="botao secundario" id="cfgCancelar">Cancelar</button>
     <button class="botao" id="cfgSalvar">Salvar</button>
+  </div>
+</dialog>
+
+<!-- Pergunta única: estatísticas de uso (opt-in) -->
+<dialog id="perguntaTelemetria">
+  <h2>Ajudar a melhorar o Garimpo?</h2>
+  <p class="ajuda">Você pode enviar estatísticas de uso anônimas para quem mantém o app saber quais recursos são usados e o que precisa melhorar. É opcional e dá para mudar quando quiser em Configurações.</p>
+  <div class="bloco">
+    <p class="ajuda"><b>Enviamos:</b> quais recursos você usa, quais fontes estão ligadas, versão do app, sistema e um código aleatório desta instalação.</p>
+    <p class="ajuda"><b>Nunca enviamos:</b> nome, e-mail, contas do Spotify ou Last.fm, chaves, nem nomes de artistas.</p>
+  </div>
+  <div class="acoes">
+    <button class="botao secundario" id="telNao">Agora não</button>
+    <button class="botao" id="telSim">Enviar estatísticas</button>
   </div>
 </dialog>
 

@@ -6,7 +6,18 @@ const estado = {
   config: { usuario: "", temChave: false, spotifyConectado: false, spotifyNome: "", spotifyClientId: "", manual: [] },
   grupoAtivo: null,
   auto: null, // último resultado gerado (cache ou recém-gerado)
+  salvos: [], // artistas guardados para ouvir depois (salvos.json)
+  filtroSalvos: "todos", // todos | pendentes | ouvidos
 };
+
+// Título e descrição de cada aba.
+const PAGINAS = {
+  voce: { titulo: "Para você", descricao: "Artistas novos, do mais ao menos parecido com o que você ouve." },
+  curadoria: { titulo: "Curadoria", descricao: "As mesmas recomendações, separadas pelos seus grupos de gosto." },
+  salvos: { titulo: "Salvos", descricao: "Artistas que você guardou para ouvir depois. Eles ficam aqui mesmo quando saem das recomendações." },
+};
+
+const ICONE_SALVAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h11v17l-5.5-4-5.5 4z"/></svg>';
 
 const PERIODOS = { longo: "longo prazo", medio: "últimos 6 meses", curto: "último mês" };
 const URL_LASTFM = "https://www.last.fm/api/account/create";
@@ -52,15 +63,64 @@ function atualizarSub() {
   if (temLastfm()) fontes.push(`Last.fm (${c.usuario})`);
   if (c.manual.length) fontes.push(`sua lista (${c.manual.length})`);
   $("sub").textContent = fontes.length
-    ? "Garimpando a partir de: " + fontes.join(" · ")
-    : "Descubra artistas novos a partir do que você já ouve.";
+    ? "Garimpando a partir de " + fontes.join(", ") + "."
+    : "Nenhuma fonte configurada ainda.";
 }
 
 // ---------- Cartão de artista (usado nas duas abas) ----------
 
+// ---------- Salvos ----------
+
+const chaveNome = (nome) => String(nome || "").trim().toLowerCase();
+
+function ehSalvo(nome) {
+  const k = chaveNome(nome);
+  return estado.salvos.some((s) => chaveNome(s.nome) === k);
+}
+
+// O artista ainda aparece nas recomendações atuais?
+function aindaRecomendado(nome) {
+  const k = chaveNome(nome);
+  return Boolean(estado.auto?.recs?.some((r) => chaveNome(r.nome) === k));
+}
+
+function atualizarContador() {
+  const pendentes = estado.salvos.filter((s) => !s.ouvido).length;
+  const el = $("contSalvos");
+  el.textContent = String(pendentes);
+  el.hidden = pendentes === 0;
+  el.title = `${pendentes} para ouvir`;
+}
+
+function pintarBotaoSalvar(botao, nome) {
+  const salvo = ehSalvo(nome);
+  botao.classList.toggle("ativo", salvo);
+  botao.title = salvo ? "Tirar dos salvos" : "Salvar para ouvir depois";
+  botao.setAttribute("aria-label", botao.title);
+}
+
+async function alternarSalvo(r, botao) {
+  try {
+    estado.salvos = await window.api.alternarSalvo({ ...r, aba: estado.aba });
+  } catch (e) {
+    status(limparErro(e), true);
+    return;
+  }
+  atualizarContador();
+  // Fora da aba Salvos só o botão muda, para não fechar prévias abertas nem parar o som.
+  if (estado.aba === "salvos") render();
+  else pintarBotaoSalvar(botao, r.nome);
+}
+
+async function marcarOuvido(s) {
+  estado.salvos = await window.api.marcarOuvido(s.nome, !s.ouvido);
+  atualizarContador();
+  render();
+}
+
 function cartao(r, modo, maior) {
   const c = document.createElement("div");
-  c.className = "card";
+  c.className = "card" + (modo === "salvo" && r.ouvido ? " ouvido" : "");
   const extra = r.lastfm
     ? `<a class="listen fraco" href="${esc(r.lastfm)}" target="_blank">Last.fm</a>`
     : r.deezer ? `<a class="listen fraco" href="${esc(r.deezer)}" target="_blank">Deezer</a>` : "";
@@ -68,12 +128,26 @@ function cartao(r, modo, maior) {
     ? `<img src="${esc(r.img)}" alt="" loading="lazy">`
     : `<div class="semfoto">${esc(r.nome.trim().charAt(0).toUpperCase())}</div>`;
   const genero = r.genero ? `<span class="tag">${esc(r.genero)}</span>` : "";
+  r = { ...r, sementes: r.sementes || [] };
   const mostrar = r.sementes.slice(0, 4);
   const resto = r.sementes.length - mostrar.length;
   const chips = `<div class="seeds">${mostrar.map((s) => `<span>${esc(s)}</span>`).join("")}${resto > 0 ? `<span>+${resto}</span>` : ""}</div>`;
 
   let meio;
-  if (modo === "curadoria") {
+  if (modo === "salvo") {
+    const quando = new Date(r.salvoEm).toLocaleDateString("pt-BR", { day: "numeric", month: "short", year: "numeric" });
+    const [a, b] = r.sementes || [];
+    const origem = a ? ` Veio de ${esc(a)}${b ? " e " + esc(b) : ""}.` : "";
+    const selo = r.ouvido
+      ? '<span class="selo neutro">Já ouvido</span>'
+      : aindaRecomendado(r.nome) ? '<span class="selo">Ainda recomendado</span>' : "";
+    meio = `
+      <div class="why">Salvo em ${esc(quando)}.${origem} ${selo}</div>
+      <div class="acoes-salvo">
+        <button class="botao secundario marcar" type="button">${r.ouvido ? "Marcar como não ouvido" : "Já ouvi"}</button>
+        <button class="botao secundario remover" type="button">Remover</button>
+      </div>`;
+  } else if (modo === "curadoria") {
     const [a, b] = r.sementes;
     meio = `<div class="why">Na linha de ${esc(a)}${b ? " e " + esc(b) : ""}, que você ouve${r.sementes.length > 2 ? `, e de mais ${r.sementes.length - 2}` : ""}.</div>`;
   } else {
@@ -84,6 +158,7 @@ function cartao(r, modo, maior) {
   }
 
   c.innerHTML = `
+    <button class="salvar" type="button">${ICONE_SALVAR}</button>
     <div class="head">
       ${foto}
       <div>
@@ -93,12 +168,19 @@ function cartao(r, modo, maior) {
     </div>
     ${meio}
     <div class="links">
-      <a class="listen" href="${esc(r.spotify)}" target="_blank">${r.spotifyDireto ? "Ouvir no Spotify →" : "Buscar no Spotify →"}</a>
+      <a class="listen" href="${esc(r.spotify || "https://open.spotify.com/search/" + encodeURIComponent(r.nome))}" target="_blank">${r.spotifyDireto ? "Ouvir no Spotify →" : "Buscar no Spotify →"}</a>
       ${extra}
       <button class="textual previas" type="button">♪ Prévias</button>
     </div>
     <ol class="faixas" hidden></ol>`;
   c.querySelector(".previas").onclick = () => alternarFaixas(c, r);
+  const salvar = c.querySelector(".salvar");
+  pintarBotaoSalvar(salvar, r.nome);
+  salvar.onclick = () => alternarSalvo(r, salvar);
+  if (modo === "salvo") {
+    c.querySelector(".marcar").onclick = () => marcarOuvido(r);
+    c.querySelector(".remover").onclick = () => alternarSalvo(r, salvar);
+  }
   const barra = c.querySelector(".barra > div");
   if (barra) {
     const pct = Math.max(4, Math.round((r.pontos / maior) * 100));
@@ -169,6 +251,7 @@ async function alternarFaixas(c, r) {
       pararPrevia();
       player.src = f.preview;
       player.play().then(() => {
+        window.api.registrarEvento("previa_tocada");
         tocando = tocar;
         tocar.textContent = "❚❚";
       }).catch(() => (tocar.title = "Não foi possível tocar esta prévia."));
@@ -299,20 +382,71 @@ function montarFiltros() {
   for (const g of grupos) chip(g.nome, g.nome, "Seus artistas: " + g.artistas.join(", "));
 }
 
+// ---------- Aba "Salvos" ----------
+
+const FILTROS_SALVOS = [
+  ["todos", "Todos"],
+  ["pendentes", "Para ouvir"],
+  ["ouvidos", "Já ouvidos"],
+];
+
+function montarFiltrosSalvos() {
+  const box = $("filtrosSalvos");
+  box.innerHTML = "";
+  if (!estado.salvos.length) return;
+  for (const [valor, texto] of FILTROS_SALVOS) {
+    const b = document.createElement("button");
+    b.className = "chip" + (estado.filtroSalvos === valor ? " active" : "");
+    b.textContent = texto;
+    b.onclick = () => { estado.filtroSalvos = valor; render(); };
+    box.appendChild(b);
+  }
+}
+
+function renderSalvos() {
+  const grid = $("grid-salvos");
+  grid.innerHTML = "";
+  montarFiltrosSalvos();
+  const termo = termoBusca();
+  const lista = estado.salvos
+    .filter((s) => estado.filtroSalvos === "todos" || (estado.filtroSalvos === "ouvidos") === Boolean(s.ouvido))
+    .filter((s) => combina({ ...s, sementes: s.sementes || [] }, termo));
+  for (const s of lista) grid.appendChild(cartao(s, "salvo"));
+  return lista.length;
+}
+
 // ---------- Geral ----------
 
 function render() {
   pararPrevia();
-  const n = estado.aba === "voce" ? renderAuto() : renderCuradoria();
-  $("empty").style.display = estado.auto && n === 0 ? "block" : "none";
+  const n = estado.aba === "voce" ? renderAuto() : estado.aba === "curadoria" ? renderCuradoria() : renderSalvos();
+  const vazio = $("empty");
+  if (estado.aba === "salvos") {
+    vazio.textContent = estado.salvos.length
+      ? "Nada encontrado com esse filtro."
+      : "Nenhum artista salvo ainda. Toque no marcador de um cartão para guardá-lo aqui.";
+    vazio.style.display = n === 0 ? "block" : "none";
+  } else {
+    vazio.textContent = "Nada encontrado com esse filtro.";
+    vazio.style.display = estado.auto && n === 0 ? "block" : "none";
+  }
   if (!estado.auto && !gerando && !temFonte()) status("Abra Configurações e escolha de onde o Garimpo tira o seu gosto musical.");
 }
 
 function trocarAba(aba) {
+  if (aba !== estado.aba) window.api.registrarEvento("aba_aberta", { aba });
   estado.aba = aba;
   document.querySelectorAll(".aba").forEach((b) => b.classList.toggle("ativa", b.dataset.aba === aba));
   $("painel-voce").hidden = aba !== "voce";
   $("painel-curadoria").hidden = aba !== "curadoria";
+  $("painel-salvos").hidden = aba !== "salvos";
+  // Garimpar não muda os salvos: os controles só aparecem nas abas de recomendação.
+  $("controlesGerar").hidden = aba === "salvos";
+  $("status").hidden = aba === "salvos";
+  $("avisos").hidden = aba === "salvos";
+  $("tituloPagina").textContent = PAGINAS[aba].titulo;
+  $("descricaoPagina").textContent = PAGINAS[aba].descricao;
+  $("busca").placeholder = aba === "salvos" ? "Buscar nos salvos..." : "Buscar por nome, gênero ou artista seu...";
   render();
 }
 
@@ -346,10 +480,49 @@ function pintarConfig() {
   }
 }
 
+// ---------- Estatísticas de uso (opt-in) ----------
+
+let telemetria = { disponivel: false, escolha: null };
+
+function pintarTelemetria() {
+  $("blocoTelemetria").hidden = !telemetria.disponivel;
+  $("cfgTelemetria").checked = telemetria.escolha === true;
+}
+
+async function escolherTelemetria(sim) {
+  telemetria = await window.api.telemetriaEscolher(sim);
+  pintarTelemetria();
+}
+
+$("cfgTelemetria").onchange = async (e) => {
+  await escolherTelemetria(e.target.checked);
+  msg("telMsg", e.target.checked ? "Obrigado! As estatísticas serão enviadas." : "Desligado. Nada mais será enviado.", "ok");
+};
+$("telApagar").onclick = async () => {
+  msg("telMsg", "Apagando...");
+  try {
+    await window.api.telemetriaApagar();
+    msg("telMsg", "Pronto: o que esta instalação já enviou foi apagado.", "ok");
+  } catch (e) {
+    msg("telMsg", limparErro(e), "erro");
+  }
+};
+$("telSim").onclick = async () => {
+  await escolherTelemetria(true);
+  $("perguntaTelemetria").close();
+};
+$("telNao").onclick = async () => {
+  await escolherTelemetria(false);
+  $("perguntaTelemetria").close();
+};
+// Fechar com Esc conta como "agora não" só nesta sessão: pergunta de novo na próxima abertura.
+
 function abrirConfig() {
   $("cfgClientId").value = estado.config.spotifyClientId;
   $("cfgClientId").placeholder = estado.config.temClientIdPadrao ? "Opcional: usar o seu próprio" : "32 letras e números";
   $("cfgManual").value = estado.config.manual.join("\n");
+  msg("telMsg", "");
+  pintarTelemetria();
   msg("spMsg", "");
   pintarConfig();
   if (!$("config").open) $("config").showModal();
@@ -521,8 +694,14 @@ window.api.aoNovaVersao((info) => {
 const UM_DIA = 24 * 60 * 60 * 1000;
 
 (async function iniciar() {
-  const [config, cache] = await Promise.all([window.api.lerConfig(), window.api.lerCache()]);
+  const [config, cache, salvos, tel] = await Promise.all([
+    window.api.lerConfig(), window.api.lerCache(), window.api.listarSalvos(), window.api.telemetriaSituacao(),
+  ]);
   estado.config = config;
+  telemetria = tel;
+  estado.salvos = salvos || [];
+  atualizarContador();
+  $("descricaoPagina").textContent = PAGINAS.voce.descricao;
   if (cache?.recs) {
     estado.auto = cache;
     if (PERIODOS[cache.opcoes?.periodo]) $("periodo").value = cache.opcoes.periodo;
@@ -536,6 +715,8 @@ const UM_DIA = 24 * 60 * 60 * 1000;
     abrirConfig();
     return;
   }
+  // Pergunta sobre as estatísticas uma vez, depois que a pessoa já configurou o app.
+  if (telemetria.disponivel && telemetria.escolha === null) $("perguntaTelemetria").showModal();
   // Curadoria dinâmica: refaz sozinha se o último resultado tem mais de um dia (ou é de uma versão antiga).
   const idade = cache?.geradoEm ? Date.now() - new Date(cache.geradoEm).getTime() : Infinity;
   if (!cache?.recs || !cache.grupos || idade > UM_DIA) gerar();

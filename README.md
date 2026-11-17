@@ -72,11 +72,37 @@ A aba "Curadoria" organiza as recomendações pelos seus grupos de gosto. Nada �
 - Ao abrir o app, se o último resultado tem mais de um dia, tudo é refeito sozinho. Assim os
   grupos e as recomendações acompanham o que você anda ouvindo.
 
+## Salvos
+
+Toque no marcador de um cartão para guardar o artista na aba **Salvos**. As recomendações mudam
+conforme o que você ouve; os salvos não. Cada um mostra quando foi salvo, de qual artista seu
+veio e se ainda aparece nas recomendações, e pode ser marcado como "Já ouvi".
+
+## Estatísticas de uso (opcionais)
+
+Na primeira abertura o app pergunta se a pessoa quer enviar estatísticas anônimas; a escolha pode
+ser trocada em Configurações, onde também há "Apagar o que já foi enviado". Vai só o tipo de uso
+(abrir o app, garimpar, salvar, prévias, abas), fontes ligadas, versão, sistema e um código
+aleatório da instalação. Nunca nomes, e-mails, contas, chaves ou nomes de artistas.
+
+Para receber as estatísticas (administrador):
+
+1. Crie um projeto no [Supabase](https://supabase.com) e rode `supabase/telemetria.sql` no SQL Editor.
+2. Em Project Settings > API, copie a URL do projeto e a chave **publishable** (ou a "anon").
+   Nunca use a `secret`/`service_role`.
+3. Cole as duas em `SUPABASE_URL` e `SUPABASE_CHAVE`, no topo de `src/telemetria.js`, e gere uma
+   nova versão. Sem elas a opção nem aparece no app.
+4. Veja os números no SQL Editor, por exemplo `select * from estatisticas.ativos_por_dia;`. Também
+   há `ativos_por_semana`, `recursos_30_dias`, `fontes_e_motor`, `versoes` e `retencao`.
+
+Para testar sem gerar versão: `GARIMPO_SUPABASE_URL=... GARIMPO_SUPABASE_CHAVE=... npm start`.
+
 ## Onde ficam os seus dados
 
-Em `%APPDATA%\garimpo\`: `config.json` (usuário e chave do Last.fm, Client ID e login do
-Spotify, lista manual) e `cache.json` (último resultado). O token do Spotify é guardado cifrado
-pelo Windows. Nada disso fica na pasta do projeto.
+Em `%APPDATA%\garimpo\` no Windows ou `~/.config/garimpo/` no Linux: `config.json` (usuário e
+chave do Last.fm, Client ID e login do Spotify, lista manual), `cache.json` (último resultado) e
+`salvos.json` (artistas salvos) e `telemetria.json` (sua escolha sobre estatísticas e a fila de envio). Os tokens do Spotify são guardados cifrados pelo sistema.
+Nada disso fica na pasta do projeto.
 
 ## Estrutura
 

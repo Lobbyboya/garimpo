@@ -16,6 +16,13 @@ contextBridge.exposeInMainWorld("api", {
     ipcRenderer.on("recs:progresso", ouvinte);
     return () => ipcRenderer.removeListener("recs:progresso", ouvinte);
   },
+  listarSalvos: () => ipcRenderer.invoke("salvos:listar"),
+  alternarSalvo: (artista) => ipcRenderer.invoke("salvos:alternar", artista),
+  marcarOuvido: (nome, ouvido) => ipcRenderer.invoke("salvos:ouvido", { nome, ouvido }),
+  telemetriaSituacao: () => ipcRenderer.invoke("telemetria:situacao"),
+  telemetriaEscolher: (sim) => ipcRenderer.invoke("telemetria:escolher", sim),
+  telemetriaApagar: () => ipcRenderer.invoke("telemetria:apagar"),
+  registrarEvento: (evento, dados) => ipcRenderer.send("telemetria:evento", evento, dados),
   topFaixas: (artista) => ipcRenderer.invoke("faixas:top", artista),
   abrirLink: (url) => ipcRenderer.send("abrir-link", url),
   checarAtualizacao: () => ipcRenderer.invoke("updater:checar"),

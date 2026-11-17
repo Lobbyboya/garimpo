@@ -1,5 +1,5 @@
 // Processo principal do Electron: janela, configuração, cache e ligação com Spotify e Last.fm.
-const { app, BrowserWindow, ipcMain, shell, safeStorage } = require("electron");
+const { app, BrowserWindow, ipcMain, shell, safeStorage, nativeTheme } = require("electron");
 const path = require("path");
 const fs = require("fs");
 const lastfm = require("./lastfm");
@@ -7,6 +7,7 @@ const spotify = require("./spotify");
 const recomendar = require("./recomendar");
 const updater = require("./updater");
 const deezer = require("./deezer");
+const telemetria = require("./telemetria");
 
 // Client ID do Spotify que já vem no app. Vazio = cada pessoa informa o seu em Configurações.
 // O Client ID não é segredo (o login usa PKCE), mas o Spotify limita cada um a 5 usuários.
@@ -121,7 +122,7 @@ function criarJanela() {
     height: 820,
     minWidth: 720,
     minHeight: 500,
-    backgroundColor: "#0f1115",
+    backgroundColor: nativeTheme.shouldUseDarkColors ? "#262624" : "#faf9f5", // igual ao fundo da interface, sem piscar ao abrir
     title: "Garimpo",
     autoHideMenuBar: true,
     ...(fs.existsSync(ICONE_DEV) ? { icon: ICONE_DEV } : {}),
@@ -170,6 +171,8 @@ function abrirExterno(url) {
     const u = new URL(url);
     if (u.protocol === "https:" && HOSTS_PERMITIDOS.includes(u.hostname)) {
       shell.openExternal(url);
+      // Só o serviço (spotify, last, deezer...), nunca o endereço: ele diria qual artista foi aberto.
+      telemetria.registrar("link_aberto", { destino: u.hostname.replace(/^(www|open|developer|accounts)\./, "").split(".")[0] });
     }
   } catch {
     // URL inválida: ignora
@@ -270,7 +273,15 @@ ipcMain.handle("recs:gerar", async (e, opcoes) => {
     periodo: opcoes?.periodo || "longo",
     sementes: Math.min(Math.max(Number(opcoes?.sementes) || 20, 1), 50),
   };
-  const resultado = await recomendar.gerar({
+  const inicio = Date.now();
+  const fontesUsadas = [
+    spotifyToken && "spotify",
+    config.apiKey && config.usuario && "lastfm",
+    config.manual?.length && "manual",
+  ].filter(Boolean);
+  let resultado;
+  try {
+    resultado = await recomendar.gerar({
     fontes: {
       spotifyToken,
       lastfm: config.apiKey && config.usuario ? { apiKey: config.apiKey, usuario: config.usuario } : null,
@@ -281,9 +292,84 @@ ipcMain.handle("recs:gerar", async (e, opcoes) => {
       if (!e.sender.isDestroyed()) e.sender.send("recs:progresso", msg); // a janela pode ter sido fechada
     },
   });
+  } catch (erro) {
+    telemetria.registrar("garimpo", { fontes: fontesUsadas, ...escolhas, duracao_ms: Date.now() - inicio, erro: true });
+    throw erro;
+  }
+  telemetria.registrar("garimpo", {
+    fontes: fontesUsadas,
+    motor: resultado.motor,
+    ...escolhas,
+    recomendacoes: resultado.recs.length,
+    duracao_ms: Date.now() - inicio,
+    erro: false,
+  });
   const cache = { ...resultado, opcoes: escolhas, avisos: [...avisos, ...resultado.avisos], geradoEm: new Date().toISOString() };
   salvarJson(arquivo("cache.json"), cache);
   return cache;
+});
+
+// ---------- Salvos: artistas que a pessoa quer ouvir depois ----------
+// Ficam em salvos.json, separados do cache: as recomendações mudam com o tempo, os salvos não.
+
+const chaveArtista = (nome) => String(nome || "").trim().toLowerCase();
+
+function lerSalvos() {
+  const lista = lerJson(arquivo("salvos.json"), []);
+  return Array.isArray(lista) ? lista : [];
+}
+
+// Só guarda texto curto e links https: o arquivo é lido de volta pela interface.
+function texto(v, max = 200) {
+  return typeof v === "string" ? v.trim().slice(0, max) : "";
+}
+function linkHttps(v) {
+  try {
+    const u = new URL(String(v || ""));
+    return u.protocol === "https:" ? u.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
+function limparArtista(a = {}) {
+  return {
+    nome: texto(a.nome),
+    genero: texto(a.genero, 60) || null,
+    grupo: texto(a.grupo, 60) || null,
+    img: linkHttps(a.img),
+    spotify: linkHttps(a.spotify),
+    spotifyDireto: Boolean(a.spotifyDireto),
+    lastfm: linkHttps(a.lastfm),
+    deezer: linkHttps(a.deezer),
+    sementes: (Array.isArray(a.sementes) ? a.sementes : []).map((s) => texto(s, 100)).filter(Boolean).slice(0, 10),
+  };
+}
+
+ipcMain.handle("salvos:listar", () => lerSalvos());
+
+// Salva o artista (com uma foto do momento, já que ele pode sumir das recomendações) ou tira dos salvos.
+ipcMain.handle("salvos:alternar", (_e, artista) => {
+  const novo = limparArtista(artista);
+  if (!novo.nome) throw new Error("Artista sem nome.");
+  const lista = lerSalvos();
+  const i = lista.findIndex((s) => chaveArtista(s.nome) === chaveArtista(novo.nome));
+  if (i >= 0) lista.splice(i, 1);
+  else lista.unshift({ ...novo, salvoEm: new Date().toISOString(), ouvido: false });
+  telemetria.registrar(i >= 0 ? "salvo_removido" : "salvo_adicionado", { aba: texto(artista?.aba, 20) });
+  salvarJson(arquivo("salvos.json"), lista.slice(0, 1000));
+  return lista;
+});
+
+ipcMain.handle("salvos:ouvido", (_e, { nome, ouvido } = {}) => {
+  const lista = lerSalvos();
+  const item = lista.find((s) => chaveArtista(s.nome) === chaveArtista(nome));
+  if (item) {
+    item.ouvido = Boolean(ouvido);
+    telemetria.registrar("salvo_ouvido", { ouvido: item.ouvido });
+    salvarJson(arquivo("salvos.json"), lista);
+  }
+  return lista;
 });
 
 // Top músicas de um artista no Deezer, com prévia de 30 s. Com o id do Deezer (quando a
@@ -295,6 +381,7 @@ ipcMain.handle("faixas:top", async (_e, { nome, deezerId } = {}) => {
     if (!alvo) return [];
     id = (await deezer.buscarArtista(alvo))?.id || null;
   }
+  telemetria.registrar("previas_abertas");
   const faixas = await deezer.topFaixas(id, 3);
   // Só repassa áudio https do CDN do Deezer, que é o único liberado na CSP.
   const doDeezer = (url) => {
@@ -314,11 +401,37 @@ ipcMain.handle("faixas:top", async (_e, { nome, deezerId } = {}) => {
 
 ipcMain.on("abrir-link", (_e, url) => abrirExterno(url));
 
+// ---------- Estatísticas de uso (opcionais) ----------
+
+ipcMain.handle("telemetria:situacao", () => telemetria.situacao());
+ipcMain.handle("telemetria:escolher", (_e, sim) => {
+  const s = telemetria.escolher(sim === true);
+  if (sim === true) telemetria.registrar("app_aberto");
+  return s;
+});
+ipcMain.handle("telemetria:apagar", () => telemetria.apagarEnviados());
+// A interface só pode registrar estes eventos; o módulo ainda confere os campos.
+const EVENTOS_DA_INTERFACE = new Set(["aba_aberta", "previa_tocada"]);
+ipcMain.on("telemetria:evento", (_e, evento, dados) => {
+  if (EVENTOS_DA_INTERFACE.has(evento)) telemetria.registrar(evento, dados);
+});
+
 app.whenReady().then(() => {
+  telemetria.iniciar({ caminho: arquivo("telemetria.json"), versaoApp: app.getVersion() });
+  telemetria.registrar("app_aberto");
   criarJanela();
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) criarJanela();
   });
+});
+
+// Ao fechar, tenta mandar o que estiver na fila (no máximo 3 s); o que sobrar vai na próxima vez.
+let saindo = false;
+app.on("before-quit", (e) => {
+  if (saindo) return;
+  saindo = true;
+  e.preventDefault();
+  Promise.race([telemetria.enviar(), new Promise((ok) => setTimeout(ok, 3000))]).finally(() => app.quit());
 });
 
 app.on("window-all-closed", () => {
