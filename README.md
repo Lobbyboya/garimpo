@@ -72,6 +72,17 @@ A aba "Curadoria" organiza as recomendações pelos seus grupos de gosto. Nada �
 - Ao abrir o app, se o último resultado tem mais de um dia, tudo é refeito sozinho. Assim os
   grupos e as recomendações acompanham o que você anda ouvindo.
 
+## Aparência
+
+Em Configurações > Aparência: modo **Sistema**, **Claro** ou **Escuro**, e um tema de cores:
+Garimpo, Tokyo Night, Dracula, Catppuccin, Nord, Gruvbox, Solarized, Rosé Pine e One Dark/Light.
+Cada tema tem a versão clara e a escura oficiais, e todas passam no contraste mínimo de leitura
+(WCAG AA). A escolha fica salva na configuração e vale também depois de atualizar o app.
+
+Para adicionar ou ajustar um tema, edite as paletas em `scripts/gerar-temas.py`, rode
+`python3 scripts/gerar-temas.py` (gera `src/renderer/temas.css`) e inclua o nome em
+`src/renderer/js/aparencia.js`.
+
 ## Salvos
 
 Toque no marcador de um cartão para guardar o artista na aba **Salvos**. As recomendações mudam
@@ -90,7 +101,7 @@ Para receber as estatísticas (administrador):
 1. Crie um projeto no [Supabase](https://supabase.com) e rode `supabase/telemetria.sql` no SQL Editor.
 2. Em Project Settings > API, copie a URL do projeto e a chave **publishable** (ou a "anon").
    Nunca use a `secret`/`service_role`.
-3. Cole as duas em `SUPABASE_URL` e `SUPABASE_CHAVE`, no topo de `src/telemetria.js`, e gere uma
+3. Cole as duas em `URL_PROJETO` e `CHAVE`, no topo de `src/servicos/supabase.js`, e gere uma
    nova versão. Sem elas a opção nem aparece no app.
 4. Veja os números no SQL Editor, por exemplo `select * from estatisticas.ativos_por_dia;`. Também
    há `ativos_por_semana`, `recursos_30_dias`, `fontes_e_motor`, `versoes` e `retencao`.
@@ -101,18 +112,46 @@ Para testar sem gerar versão: `GARIMPO_SUPABASE_URL=... GARIMPO_SUPABASE_CHAVE=
 
 Em `%APPDATA%\garimpo\` no Windows ou `~/.config/garimpo/` no Linux: `config.json` (usuário e
 chave do Last.fm, Client ID e login do Spotify, lista manual), `cache.json` (último resultado) e
-`salvos.json` (artistas salvos) e `telemetria.json` (sua escolha sobre estatísticas e a fila de envio). Os tokens do Spotify são guardados cifrados pelo sistema.
+`salvos.json` (artistas salvos) e `telemetria.json` (sua escolha sobre estatísticas e a fila de envio).
+A configuração é gravada de forma segura (nunca fica pela metade) e a versão anterior fica em
+`config.json.bak`: se o arquivo se corromper, o app usa a cópia e guarda o corrompido à parte. Os tokens do Spotify são guardados cifrados pelo sistema.
 Nada disso fica na pasta do projeto.
 
 ## Estrutura
 
-- `src/main.js`: janela, configuração, cache e IPC.
-- `src/recomendar.js`: junta as fontes, calcula as recomendações e monta os grupos de gosto.
-- `src/spotify.js`: login (PKCE), top artistas e busca de artistas no Spotify.
-- `src/lastfm.js`: top artistas, similares e tags do Last.fm.
-- `src/deezer.js`: fotos e artistas relacionados.
-- `src/preload.js`: ponte segura entre a interface e o processo principal.
-- `src/renderer/`: interface (HTML, CSS, JS).
+O código é separado em camadas. Cada uma só usa as que vêm depois dela na lista:
+
+```
+src/
+├── main/            processo principal do Electron (único que fala com a interface)
+│   ├── index.js         ciclo de vida do app (ponto de entrada)
+│   ├── ipc.js           canais com a interface; só traduz chamadas para os módulos abaixo
+│   ├── janela.js        a janela
+│   ├── links.js         links externos (só https e sites conhecidos)
+│   ├── contas.js        login do Spotify e chave do Last.fm
+│   ├── recomendacoes.js Garimpar: fontes da config, cache e estatística do uso
+│   ├── previas.js       prévias de 30 s conferidas para a interface
+│   ├── atualizacoes.js  versão nova no GitHub e qual instalador oferecer
+│   └── telemetria.js    estatísticas de uso opcionais (fila local e envio)
+├── recomendacao/    o algoritmo, sem Electron: recebe as fontes e devolve as recomendações
+│   ├── index.js         junta as etapas
+│   ├── sementes.js      1. o que a pessoa ouve vira sementes com peso
+│   ├── similares.js     2. parecidos de cada semente e pontuação
+│   ├── enriquecer.js    3. link do Spotify, gênero e foto
+│   ├── agrupar.js       grupos de gosto da Curadoria
+│   └── tags.js          limpeza de tags e gêneros
+├── dados/           o que fica salvo no computador
+│   ├── arquivos.js      pasta dos dados
+│   ├── config.js        config.json
+│   ├── salvos.js        salvos.json
+│   └── segredos.js      tokens cifrados pelo sistema
+├── servicos/        clientes das APIs externas (só HTTP, sem estado do app)
+│   ├── spotify.js, spotify-login.js, lastfm.js, deezer.js, github.js, supabase.js
+├── comum/           utilitários sem dependências: texto, rede, json, lotes, versao
+├── preload.js       ponte segura entre a interface e o processo principal
+└── renderer/        interface (HTML, CSS e módulos JS)
+    └── js/              app.js liga tudo; um módulo por tela ou assunto
+```
 
 ## Limitações conhecidas
 

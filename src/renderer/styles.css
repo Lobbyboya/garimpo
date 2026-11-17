@@ -13,8 +13,8 @@
   --texto: #1f1e1d;
   --suave: #6b6962;
   --fraco: #9a978e;
-  --acento: #c96442;
-  --acento-hover: #b5573a;
+  --acento: #b5573a;
+  --acento-hover: #9f4a30;
   --acento-texto: #ffffff;
   --acento-fundo: #f6e6dd;
   --ok: #4d7c4a;
@@ -269,3 +269,20 @@ code { background: var(--card); border: 1px solid var(--linha); border-radius: 6
 .detalhes p { margin: 0; }
 #blocoTelemetria[hidden] { display: none; }
 #perguntaTelemetria .bloco { gap: 8px; }
+
+/* Aparência: modos e amostras de tema */
+.modos { margin-bottom: 0; }
+.temas { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+button.amostra {
+  font: inherit; cursor: pointer; text-align: left; padding: 6px; border-radius: 10px;
+  background: var(--bg); color: var(--texto); border: 2px solid var(--linha);
+  display: flex; flex-direction: column; gap: 6px;
+}
+button.amostra:hover { border-color: var(--linha-forte); }
+button.amostra.ativa { border-color: var(--acento); }
+.amostra-tela { display: flex; height: 46px; border-radius: 6px; overflow: hidden; border: 1px solid var(--linha); }
+.amostra-lateral { width: 26%; background: var(--lateral); }
+.amostra-cartao { flex: 1; margin: 7px; border-radius: 4px; background: var(--card); border: 1px solid var(--linha); display: flex; align-items: center; gap: 5px; padding: 0 6px; }
+.amostra-linha { flex: 1; height: 4px; border-radius: 2px; background: var(--suave); opacity: .7; }
+.amostra-ponto { width: 10px; height: 10px; border-radius: 50%; background: var(--acento); }
+.amostra-nome { font-size: .76rem; font-weight: 600; padding: 0 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

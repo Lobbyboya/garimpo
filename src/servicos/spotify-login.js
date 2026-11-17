@@ -1,13 +1,14 @@
-// Login do Spotify (Authorization Code com PKCE, sem client secret) e leitura dos top artistas.
+// Login do Spotify: Authorization Code com PKCE, sem client secret.
+// Abre o navegador na tela de autorização e recebe o código num servidor local temporário.
 // Cada pessoa entra com a própria conta. O app só pede a permissão "user-top-read".
 const http = require("http");
 const crypto = require("crypto");
+const { buscar } = require("../comum/rede");
 
 const PORTA = 48721;
 const REDIRECT = `http://127.0.0.1:${PORTA}/callback`;
 const ESCOPO = "user-top-read";
 const CONTAS = "https://accounts.spotify.com";
-const API = "https://api.spotify.com/v1";
 
 const b64url = (buf) => buf.toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 
@@ -93,21 +94,9 @@ function cancelarLogin() {
   }
 }
 
-const TEMPO_LIMITE = 15000;
-
-// fetch com tempo limite, para uma resposta que nunca chega não travar o app.
-async function buscar(url, opcoes = {}) {
-  try {
-    return await fetch(url, { ...opcoes, signal: AbortSignal.timeout(TEMPO_LIMITE) });
-  } catch (e) {
-    throw new Error(e.name === "TimeoutError"
-      ? "O Spotify demorou demais para responder. Tente de novo."
-      : "Não foi possível falar com o Spotify. Confira a sua conexão.");
-  }
-}
-
 async function pedirToken(params) {
   const resp = await buscar(CONTAS + "/api/token", {
+    servico: "Spotify",
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams(params),
@@ -143,59 +132,4 @@ function renovar(clientId, refresh) {
   return pedirToken({ grant_type: "refresh_token", refresh_token: refresh, client_id: clientId });
 }
 
-async function chamar(token, caminho) {
-  const resp = await buscar(API + caminho, { headers: { Authorization: "Bearer " + token } });
-  if (resp.status === 403) {
-    throw new Error("O Spotify recusou o acesso. A conta precisa estar na lista de usuários do app (User Management) no painel de desenvolvedor.");
-  }
-  if (!resp.ok) {
-    const e = new Error(resp.status === 429 ? "O Spotify pediu para ir mais devagar." : `Erro ${resp.status} ao falar com o Spotify.`);
-    e.codigo = resp.status;
-    throw e;
-  }
-  return resp.json();
-}
-
-async function perfil(token) {
-  const eu = await chamar(token, "/me");
-  return eu.display_name || eu.id || "";
-}
-
-// time_range: short_term (~4 semanas), medium_term (~6 meses) ou long_term (~1 ano).
-async function topArtistas(token, timeRange) {
-  const dados = await chamar(token, `/me/top/artists?limit=50&time_range=${timeRange}`);
-  return (dados.items || []).map((a) => ({ nome: a.name, generos: a.genres || [] }));
-}
-
-// Procura o artista pelo nome exato. Devolve o link direto, a foto e os gêneros, ou null.
-async function buscarArtista(token, nome) {
-  const dados = await chamar(token, "/search?type=artist&limit=5&q=" + encodeURIComponent(nome));
-  const alvo = nome.trim().toLowerCase();
-  const a = (dados.artists?.items || []).find((x) => x?.name?.trim().toLowerCase() === alvo);
-  if (!a) return null;
-  return {
-    id: a.id,
-    link: a.external_urls?.spotify || null,
-    img: a.images?.[1]?.url || a.images?.[0]?.url || null,
-    generos: a.genres || [],
-  };
-}
-
-// Top músicas do artista no Spotify
-async function topFaixas(token, artistId, mercado = "BR") {
-  if (!artistId) return [];
-  try {
-    const dados = await chamar(token, `/artists/${artistId}/top-tracks?market=${mercado}`);
-    return (dados.tracks || []).slice(0, 3).map((t) => ({
-      id: t.id,
-      titulo: t.name,
-      preview: t.preview_url || null,
-      link: t.external_urls?.spotify || null,
-      duracao: Math.round(t.duration_ms / 1000),
-    }));
-  } catch {
-    return [];
-  }
-}
-
-module.exports = { REDIRECT, login, cancelarLogin, renovar, perfil, topArtistas, buscarArtista, topFaixas };
+module.exports = { REDIRECT, login, cancelarLogin, renovar };

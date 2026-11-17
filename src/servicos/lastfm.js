@@ -1,4 +1,6 @@
-// Chamadas à API do Last.fm: top artistas de um usuário e artistas similares.
+// API do Last.fm (com a chave da pessoa): top artistas de um usuário, similares e tags.
+const { buscar } = require("../comum/rede");
+
 const API = "https://ws.audioscrobbler.com/2.0/";
 
 const ERROS = {
@@ -13,14 +15,7 @@ async function chamar(params, apiKey) {
   for (const [k, v] of Object.entries({ ...params, api_key: apiKey, format: "json" })) {
     url.searchParams.set(k, v);
   }
-  let resp;
-  try {
-    resp = await fetch(url, { headers: { "User-Agent": "Garimpo/1.0" }, signal: AbortSignal.timeout(15000) });
-  } catch (e) {
-    throw new Error(e.name === "TimeoutError"
-      ? "O Last.fm demorou demais para responder. Tente de novo."
-      : "Não foi possível falar com o Last.fm. Confira a sua conexão.");
-  }
+  const resp = await buscar(url, { servico: "Last.fm", headers: { "User-Agent": "Garimpo/1.0" } });
   let dados;
   try {
     dados = await resp.json();

@@ -7,15 +7,8 @@
 //  - só eventos da lista EVENTOS, com campos conferidos; o resto é descartado;
 //  - os eventos ficam numa fila local e vão em lote; sem internet, ficam para depois.
 const crypto = require("crypto");
-const fs = require("fs");
-const path = require("path");
-
-// Preencha com os dados do SEU projeto no Supabase (Project Settings > API).
-// A chave é a "publishable" (sb_publishable_...) ou a "anon" antiga: ela é pública por natureza,
-// e o banco só aceita INSERT na tabela de eventos (ver supabase/telemetria.sql).
-// Com os dois vazios a telemetria fica desligada e a opção nem aparece no app.
-const SUPABASE_URL = process.env.GARIMPO_SUPABASE_URL || ""; // a variável de ambiente serve para testes
-const SUPABASE_CHAVE = process.env.GARIMPO_SUPABASE_CHAVE || "";
+const supabase = require("../servicos/supabase");
+const { lerJson, salvarJson } = require("../comum/json");
 
 const MAX_FILA = 500;
 const LOTE = 100;
@@ -40,14 +33,12 @@ let estado = { escolha: null, id: null, fila: [] }; // escolha: null (não pergu
 let enviando = false;
 let relogio = null;
 
-function disponivel() {
-  return Boolean(SUPABASE_URL && SUPABASE_CHAVE);
-}
+// Sem Supabase configurado (ver servicos/supabase.js) a opção nem aparece no app.
+const disponivel = () => supabase.configurado();
 
 function salvar() {
   try {
-    fs.mkdirSync(path.dirname(arquivo), { recursive: true });
-    fs.writeFileSync(arquivo, JSON.stringify(estado));
+    salvarJson(arquivo, estado, { compacto: true });
   } catch {
     // sem disco: as estatísticas não são importantes o bastante para atrapalhar o app
   }
@@ -56,13 +47,8 @@ function salvar() {
 function iniciar({ caminho, versaoApp }) {
   arquivo = caminho;
   versao = versaoApp;
-  try {
-    const lido = JSON.parse(fs.readFileSync(arquivo, "utf8"));
-    estado = { escolha: null, id: null, fila: [], ...lido };
-    if (!Array.isArray(estado.fila)) estado.fila = [];
-  } catch {
-    // primeira vez
-  }
+  estado = { escolha: null, id: null, fila: [], ...lerJson(arquivo, {}) };
+  if (!Array.isArray(estado.fila)) estado.fila = [];
   if (!disponivel()) return;
   if (estado.escolha === true) {
     clearInterval(relogio);
@@ -119,16 +105,6 @@ function registrar(evento, dados) {
   if (estado.fila.length >= LOTE) enviar();
 }
 
-async function postar(caminho, corpo) {
-  const resp = await fetch(SUPABASE_URL.replace(/\/+$/, "") + caminho, {
-    method: "POST",
-    headers: { apikey: SUPABASE_CHAVE, "Content-Type": "application/json", Prefer: "return=minimal" },
-    body: JSON.stringify(corpo),
-    signal: AbortSignal.timeout(10000),
-  });
-  if (!resp.ok) throw new Error(`Supabase respondeu ${resp.status}: ${(await resp.text().catch(() => "")).slice(0, 200)}`);
-}
-
 // Manda a fila em lotes. Falhou? Tenta de novo no próximo ciclo.
 async function enviar() {
   if (!disponivel() || estado.escolha !== true || enviando || !estado.fila.length) return;
@@ -136,7 +112,7 @@ async function enviar() {
   try {
     while (estado.fila.length && estado.escolha === true) {
       const lote = estado.fila.slice(0, LOTE);
-      await postar("/rest/v1/eventos", lote);
+      await supabase.inserirEventos(lote);
       estado.fila.splice(0, lote.length);
       salvar();
     }
@@ -150,7 +126,7 @@ async function enviar() {
 // Apaga do servidor tudo o que esta instalação já enviou e troca o id.
 async function apagarEnviados() {
   if (!disponivel()) throw new Error("Estatísticas não estão disponíveis nesta versão.");
-  if (estado.id) await postar("/rest/v1/rpc/apagar_instalacao", { p_instalacao: estado.id });
+  if (estado.id) await supabase.apagarInstalacao(estado.id);
   estado.id = estado.escolha === true ? crypto.randomUUID() : null;
   estado.fila = [];
   salvar();

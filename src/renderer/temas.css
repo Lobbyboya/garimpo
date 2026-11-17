@@ -1,0 +1,331 @@
+/* Gerado por scripts/gerar-temas.py: edite as paletas lá, não aqui.
+   Cada tema vale para qualquer elemento com data-tema (a página inteira, no <html>, ou a amostra
+   do tema nas Configurações). O modo claro/escuro vem do prefers-color-scheme, que o app controla. */
+
+[data-tema] {
+  --campo: var(--card);
+  --card-hover: color-mix(in srgb, var(--card) 94%, var(--texto));
+  --sombra: 0 1px 2px rgb(0 0 0 / .05), 0 2px 8px rgb(0 0 0 / .05);
+}
+@media (prefers-color-scheme: dark) {
+  [data-tema] { --sombra: 0 1px 2px rgb(0 0 0 / .25); }
+}
+
+
+[data-tema="garimpo"] {
+  --bg: #faf9f5;
+  --lateral: #f3f1ea;
+  --card: #ffffff;
+  --linha: #e6e3da;
+  --linha-forte: #d6d2c6;
+  --texto: #1f1e1d;
+  --suave: #6b6962;
+  --fraco: #9a978e;
+  --acento: #b5573a;
+  --acento-hover: #9f4a30;
+  --acento-texto: #ffffff;
+  --acento-fundo: #f6e6dd;
+  --ok: #4d7c4a;
+  --aviso: #a8741a;
+  --erro: #b8483a;
+}
+
+[data-tema="tokyo-night"] {
+  --bg: #e1e2e7;
+  --lateral: #d0d5e3;
+  --card: #ecedf1;
+  --linha: #c4c8da;
+  --linha-forte: #a8aecb;
+  --texto: #3760bf;
+  --suave: #4f63a3;
+  --fraco: #848cb5;
+  --acento: #2264c8;
+  --acento-hover: #1a56ad;
+  --acento-texto: #ffffff;
+  --acento-fundo: #cdd8f2;
+  --ok: #587539;
+  --aviso: #8c6c3e;
+  --erro: #f52a65;
+}
+
+[data-tema="dracula"] {
+  --bg: #fffbeb;
+  --lateral: #f4eed6;
+  --card: #fffdf5;
+  --linha: #e6dfc2;
+  --linha-forte: #cfcfde;
+  --texto: #1f1f1f;
+  --suave: #4a4636;
+  --fraco: #6c664b;
+  --acento: #644ac9;
+  --acento-hover: #5539b3;
+  --acento-texto: #ffffff;
+  --acento-fundo: #e7e0f7;
+  --ok: #14710a;
+  --aviso: #a34d14;
+  --erro: #cb3a2a;
+}
+
+[data-tema="catppuccin"] {
+  --bg: #eff1f5;
+  --lateral: #e6e9ef;
+  --card: #f8f9fb;
+  --linha: #ccd0da;
+  --linha-forte: #bcc0cc;
+  --texto: #4c4f69;
+  --suave: #5c5f77;
+  --fraco: #8c8fa1;
+  --acento: #8839ef;
+  --acento-hover: #7527d9;
+  --acento-texto: #ffffff;
+  --acento-fundo: #e5d8fb;
+  --ok: #40a02b;
+  --aviso: #c27a0e;
+  --erro: #d20f39;
+}
+
+[data-tema="nord"] {
+  --bg: #eceff4;
+  --lateral: #e5e9f0;
+  --card: #f8f9fb;
+  --linha: #d8dee9;
+  --linha-forte: #c2cad8;
+  --texto: #2e3440;
+  --suave: #4c566a;
+  --fraco: #7b88a1;
+  --acento: #4c6f99;
+  --acento-hover: #3f5f86;
+  --acento-texto: #ffffff;
+  --acento-fundo: #dbe5f0;
+  --ok: #5f8a4b;
+  --aviso: #a87b1c;
+  --erro: #bf616a;
+}
+
+[data-tema="gruvbox"] {
+  --bg: #fbf1c7;
+  --lateral: #f2e5bc;
+  --card: #f9f5d7;
+  --linha: #ebdbb2;
+  --linha-forte: #d5c4a1;
+  --texto: #3c3836;
+  --suave: #504945;
+  --fraco: #7c6f64;
+  --acento: #af3a03;
+  --acento-hover: #8f3002;
+  --acento-texto: #fbf1c7;
+  --acento-fundo: #f2d6b8;
+  --ok: #79740e;
+  --aviso: #b57614;
+  --erro: #9d0006;
+}
+
+[data-tema="solarized"] {
+  --bg: #fdf6e3;
+  --lateral: #eee8d5;
+  --card: #fffcf4;
+  --linha: #e4ddc8;
+  --linha-forte: #d3cbb7;
+  --texto: #3f545b;
+  --suave: #586e75;
+  --fraco: #93a1a1;
+  --acento: #1f6fa8;
+  --acento-hover: #185c8c;
+  --acento-texto: #ffffff;
+  --acento-fundo: #dde9f0;
+  --ok: #859900;
+  --aviso: #b58900;
+  --erro: #dc322f;
+}
+
+[data-tema="rose-pine"] {
+  --bg: #faf4ed;
+  --lateral: #f2e9e1;
+  --card: #fffaf3;
+  --linha: #dfdad9;
+  --linha-forte: #cecacd;
+  --texto: #575279;
+  --suave: #6a6688;
+  --fraco: #9893a5;
+  --acento: #286983;
+  --acento-hover: #1f5a71;
+  --acento-texto: #ffffff;
+  --acento-fundo: #d6e6ec;
+  --ok: #3e7d88;
+  --aviso: #b8740f;
+  --erro: #b4637a;
+}
+
+[data-tema="one"] {
+  --bg: #fafafa;
+  --lateral: #f0f0f0;
+  --card: #ffffff;
+  --linha: #e5e5e6;
+  --linha-forte: #d4d4d4;
+  --texto: #383a42;
+  --suave: #696c77;
+  --fraco: #a0a1a7;
+  --acento: #2f66e0;
+  --acento-hover: #2756bd;
+  --acento-texto: #ffffff;
+  --acento-fundo: #dfe8fd;
+  --ok: #50a14f;
+  --aviso: #c18401;
+  --erro: #e45649;
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-tema="garimpo"] {
+    --bg: #262624;
+    --lateral: #1f1e1d;
+    --card: #30302e;
+    --linha: #3e3e3a;
+    --linha-forte: #4c4b46;
+    --texto: #f0eee6;
+    --suave: #b1ada1;
+    --fraco: #85827a;
+    --acento: #d97757;
+    --acento-hover: #e08a6d;
+    --acento-texto: #1f1e1d;
+    --acento-fundo: #3d2e27;
+    --ok: #8bb07f;
+    --aviso: #d9a54a;
+    --erro: #e57f6f;
+  }
+  [data-tema="tokyo-night"] {
+    --bg: #1a1b26;
+    --lateral: #16161e;
+    --card: #1f2335;
+    --linha: #292e42;
+    --linha-forte: #3b4261;
+    --texto: #c0caf5;
+    --suave: #a9b1d6;
+    --fraco: #565f89;
+    --acento: #7aa2f7;
+    --acento-hover: #89b4fa;
+    --acento-texto: #1a1b26;
+    --acento-fundo: #2a3150;
+    --ok: #9ece6a;
+    --aviso: #e0af68;
+    --erro: #f7768e;
+  }
+  [data-tema="dracula"] {
+    --bg: #282a36;
+    --lateral: #21222c;
+    --card: #343746;
+    --linha: #44475a;
+    --linha-forte: #565970;
+    --texto: #f8f8f2;
+    --suave: #c5c8d6;
+    --fraco: #6272a4;
+    --acento: #bd93f9;
+    --acento-hover: #caa9fa;
+    --acento-texto: #282a36;
+    --acento-fundo: #3b3456;
+    --ok: #50fa7b;
+    --aviso: #ffb86c;
+    --erro: #ff5555;
+  }
+  [data-tema="catppuccin"] {
+    --bg: #1e1e2e;
+    --lateral: #181825;
+    --card: #313244;
+    --linha: #45475a;
+    --linha-forte: #585b70;
+    --texto: #cdd6f4;
+    --suave: #bac2de;
+    --fraco: #7f849c;
+    --acento: #cba6f7;
+    --acento-hover: #d6b8fa;
+    --acento-texto: #1e1e2e;
+    --acento-fundo: #3b3452;
+    --ok: #a6e3a1;
+    --aviso: #fab387;
+    --erro: #f38ba8;
+  }
+  [data-tema="nord"] {
+    --bg: #2e3440;
+    --lateral: #292e39;
+    --card: #3b4252;
+    --linha: #434c5e;
+    --linha-forte: #4c566a;
+    --texto: #eceff4;
+    --suave: #d8dee9;
+    --fraco: #7b88a1;
+    --acento: #88c0d0;
+    --acento-hover: #8fbcbb;
+    --acento-texto: #2e3440;
+    --acento-fundo: #364556;
+    --ok: #a3be8c;
+    --aviso: #ebcb8b;
+    --erro: #e5848c;
+  }
+  [data-tema="gruvbox"] {
+    --bg: #282828;
+    --lateral: #1d2021;
+    --card: #32302f;
+    --linha: #3c3836;
+    --linha-forte: #504945;
+    --texto: #ebdbb2;
+    --suave: #d5c4a1;
+    --fraco: #928374;
+    --acento: #fe8019;
+    --acento-hover: #fe9a4a;
+    --acento-texto: #282828;
+    --acento-fundo: #46322a;
+    --ok: #b8bb26;
+    --aviso: #fabd2f;
+    --erro: #fb4934;
+  }
+  [data-tema="solarized"] {
+    --bg: #002b36;
+    --lateral: #00212b;
+    --card: #073642;
+    --linha: #194652;
+    --linha-forte: #2a5a66;
+    --texto: #eee8d5;
+    --suave: #a7b3b3;
+    --fraco: #657b83;
+    --acento: #4fa3e0;
+    --acento-hover: #6bb3e6;
+    --acento-texto: #002b36;
+    --acento-fundo: #0d3d55;
+    --ok: #a3b81a;
+    --aviso: #d4a20f;
+    --erro: #f0605d;
+  }
+  [data-tema="rose-pine"] {
+    --bg: #191724;
+    --lateral: #16141f;
+    --card: #1f1d2e;
+    --linha: #26233a;
+    --linha-forte: #403d52;
+    --texto: #e0def4;
+    --suave: #908caa;
+    --fraco: #6e6a86;
+    --acento: #ebbcba;
+    --acento-hover: #f2cfcd;
+    --acento-texto: #191724;
+    --acento-fundo: #3a2a35;
+    --ok: #9ccfd8;
+    --aviso: #f6c177;
+    --erro: #eb6f92;
+  }
+  [data-tema="one"] {
+    --bg: #282c34;
+    --lateral: #21252b;
+    --card: #2c313a;
+    --linha: #3e4451;
+    --linha-forte: #4b5263;
+    --texto: #d7dae0;
+    --suave: #abb2bf;
+    --fraco: #5c6370;
+    --acento: #61afef;
+    --acento-hover: #7cbdf3;
+    --acento-texto: #21252b;
+    --acento-fundo: #2b3a4d;
+    --ok: #98c379;
+    --aviso: #e5c07b;
+    --erro: #e06c75;
+  }
+}

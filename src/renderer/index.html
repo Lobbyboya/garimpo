@@ -1,11 +1,13 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-tema="garimpo">
 <head>
 <meta charset="UTF-8">
 <meta http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' https://i.scdn.co https://*.spotifycdn.com https://*.dzcdn.net; media-src https://*.dzcdn.net">
 <title>Garimpo</title>
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="temas.css">
+<script src="js/tema-inicial.js"></script>
 </head>
 <body>
 
@@ -108,6 +110,12 @@
 <dialog id="config">
   <h2>Configurações</h2>
   <p class="ajuda">O Garimpo precisa saber o que você ouve. Use pelo menos uma das três fontes abaixo. Tudo fica salvo só neste computador.</p>
+
+  <section class="bloco">
+    <h3>Aparência</h3>
+    <div class="filters modos" id="modosAparencia" role="radiogroup" aria-label="Modo"></div>
+    <div class="temas" id="temasAparencia" role="radiogroup" aria-label="Tema"></div>
+  </section>
 
   <section class="bloco">
     <h3>Spotify</h3>
@@ -260,6 +268,6 @@
   </div>
 </dialog>
 
-<script src="renderer.js"></script>
+<script type="module" src="js/app.js"></script>
 </body>
 </html>
