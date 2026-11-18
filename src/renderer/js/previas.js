@@ -1,20 +1,14 @@
-// Prévias de 30 s (Deezer) dentro do cartão. Um tocador só para o app todo.
-import { esc } from "./util.js";
+// Prévias de 30 s (Deezer): a lista de músicas dentro do cartão e o "rádio", que toca uma prévia
+// de cada recomendação em sequência. Um tocador só para o app todo.
+import { $, esc } from "./util.js";
+import { ehDispensado } from "./dispensados.js";
 
 const player = new Audio();
-let tocando = null; // botão da faixa que está tocando
+let tocando = null; // botão de faixa (dentro de um cartão) que está tocando
 const faixasCache = new Map(); // nome do artista -> faixas (ou a promessa em andamento)
 
-export function pararPrevia() {
-  player.pause();
-  if (tocando) tocando.textContent = "▶";
-  tocando = null;
-}
-player.addEventListener("ended", pararPrevia);
-player.addEventListener("error", () => {
-  if (tocando) tocando.title = "Não foi possível tocar esta prévia.";
-  pararPrevia();
-});
+// Rádio: fila de recomendações e a posição atual.
+const radio = { fila: [], pos: -1, ativo: false };
 
 // O id do Deezer vem no link da recomendação (https://www.deezer.com/artist/123).
 const deezerIdDe = (r) => String(r.deezer || "").match(/\/artist\/(\d+)/)?.[1] || null;
@@ -30,6 +24,38 @@ function carregarFaixas(r) {
   return faixasCache.get(r.nome);
 }
 
+function soltarBotao() {
+  if (tocando) tocando.textContent = "▶";
+  tocando = null;
+}
+
+// Para tudo, inclusive o rádio.
+export function pararPrevia() {
+  player.pause();
+  soltarBotao();
+  if (radio.ativo) desligarRadio();
+}
+
+// Chamado quando a grade é redesenhada: a prévia de um cartão para (o botão dela sumiu),
+// mas o rádio continua e o novo cartão do artista volta a ficar destacado.
+export function aoRedesenhar() {
+  if (radio.ativo) {
+    destacarCartao();
+    return;
+  }
+  player.pause();
+  soltarBotao();
+}
+
+player.addEventListener("ended", () => (radio.ativo ? proxima() : soltarBotao()));
+player.addEventListener("error", () => {
+  if (radio.ativo) return proxima();
+  if (tocando) tocando.title = "Não foi possível tocar esta prévia.";
+  soltarBotao();
+});
+
+// ---------- Prévias dentro do cartão ----------
+
 function botaoTocar(f) {
   const tocar = document.createElement("button");
   tocar.className = "tocar";
@@ -39,7 +65,7 @@ function botaoTocar(f) {
   tocar.title = f.preview ? "Ouvir 30 segundos" : "Sem prévia disponível";
   tocar.onclick = () => {
     if (tocando === tocar) return pararPrevia();
-    pararPrevia();
+    pararPrevia(); // tocar uma faixa à mão desliga o rádio
     player.src = f.preview;
     player.play().then(() => {
       window.api.registrarEvento("previa_tocada");
@@ -84,4 +110,99 @@ export async function alternarFaixas(c, r) {
     li.append(botaoTocar(f), tituloFaixa(f));
     lista.appendChild(li);
   }
+}
+
+// ---------- Rádio: uma prévia de cada recomendação, em sequência ----------
+
+const atual = () => radio.fila[radio.pos];
+
+function destacarCartao() {
+  for (const c of document.querySelectorAll(".card.tocando-agora")) c.classList.remove("tocando-agora");
+  const r = atual();
+  if (!r) return;
+  const c = [...document.querySelectorAll(".card")].find((el) => el.dataset.nome === r.nome && !el.closest("[hidden]"));
+  if (c) {
+    c.classList.add("tocando-agora");
+    c.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+}
+
+function pintarBarra(r, faixa) {
+  $("radio").hidden = false;
+  $("radioArtista").textContent = r.nome;
+  $("radioFaixa").textContent = faixa ? faixa.titulo : "Procurando uma prévia...";
+  $("radioPosicao").textContent = `${radio.pos + 1} de ${radio.fila.length}`;
+  $("radioPausar").textContent = player.paused ? "▶" : "❚❚";
+}
+
+async function tocarAtual() {
+  const r = atual();
+  if (!r) return desligarRadio();
+  const pos = radio.pos;
+  pintarBarra(r, null);
+  destacarCartao();
+  const faixas = await carregarFaixas(r);
+  if (!radio.ativo || radio.pos !== pos) return; // a pessoa pulou ou parou enquanto carregava
+  const faixa = faixas?.find((f) => f.preview);
+  if (!faixa) return proxima(); // sem prévia: segue para o próximo
+  player.src = faixa.preview;
+  try {
+    await player.play();
+    window.api.registrarEvento("previa_tocada");
+  } catch {
+    return proxima();
+  }
+  pintarBarra(r, faixa);
+}
+
+export function proxima() {
+  if (!radio.ativo) return;
+  do radio.pos++;
+  while (radio.pos < radio.fila.length && ehDispensado(radio.fila[radio.pos].nome));
+  if (radio.pos >= radio.fila.length) return desligarRadio();
+  tocarAtual();
+}
+
+// Começa o rádio com as recomendações que estão na tela, na ordem.
+export function ligarRadio(recs) {
+  if (!recs.length) return;
+  player.pause();
+  soltarBotao();
+  Object.assign(radio, { fila: [...recs], pos: -1, ativo: true });
+  proxima();
+  pintarBotaoRadio();
+}
+
+// O botão da aba "Para você" acompanha o estado do rádio.
+function pintarBotaoRadio() {
+  const b = document.querySelector(".chip-radio");
+  if (b) b.textContent = radio.ativo ? "■ Parar sequência" : "▶ Ouvir em sequência";
+}
+
+export function desligarRadio() {
+  radio.ativo = false;
+  pintarBotaoRadio();
+  player.pause();
+  $("radio").hidden = true;
+  for (const c of document.querySelectorAll(".card.tocando-agora")) c.classList.remove("tocando-agora");
+}
+
+export const radioLigado = () => radio.ativo;
+
+// Pausa ou retoma o que estiver tocando (rádio ou prévia de um cartão).
+export function pausarOuRetomar() {
+  if (!player.src || (!radio.ativo && !tocando)) return false;
+  if (player.paused) player.play().catch(() => {});
+  else player.pause();
+  if (radio.ativo) $("radioPausar").textContent = player.paused ? "▶" : "❚❚";
+  else if (tocando) tocando.textContent = player.paused ? "▶" : "❚❚";
+  return true;
+}
+
+export function ligarControlesRadio() {
+  $("radioPausar").onclick = pausarOuRetomar;
+  $("radioProxima").onclick = proxima;
+  $("radioParar").onclick = desligarRadio;
+  player.addEventListener("play", () => radio.ativo && ($("radioPausar").textContent = "❚❚"));
+  player.addEventListener("pause", () => radio.ativo && ($("radioPausar").textContent = "▶"));
 }

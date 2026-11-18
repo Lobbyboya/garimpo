@@ -43,7 +43,7 @@ async function coletarSementes(fontes, periodo, progresso) {
   }
 
   if (fontes.spotifyToken) {
-    progresso("Lendo seus top artistas no Spotify...");
+    progresso("Lendo seus top artistas no Spotify...", 0.02);
     try {
       const top = await spotify.topArtistas(fontes.spotifyToken, p.spotify);
       somar(top.map((a, i) => ({ nome: a.nome, peso: (top.length - i) / top.length, tags: a.generos })), "Spotify");
@@ -53,7 +53,7 @@ async function coletarSementes(fontes, periodo, progresso) {
   }
 
   if (fontes.lastfm) {
-    progresso("Lendo seus top artistas no Last.fm...");
+    progresso("Lendo seus top artistas no Last.fm...", 0.06);
     try {
       const top = await lastfm.topArtistas(fontes.lastfm.apiKey, fontes.lastfm.usuario, p.lastfm);
       const maior = top[0]?.scrobbles || 1;
@@ -77,7 +77,7 @@ function maisFortes(pesos, quantidade) {
 async function completarGeneros(base, chaveLastfm, progresso) {
   const semTags = base.filter((s) => !s.tags.length);
   if (!chaveLastfm || !semTags.length) return;
-  progresso("Descobrindo os estilos dos seus artistas...");
+  progresso("Descobrindo os estilos dos seus artistas...", 0.1);
   await emLotes(semTags, 4, async (s) => {
     try {
       s.tags = limparTags(await lastfm.tags(chaveLastfm, s.nome));

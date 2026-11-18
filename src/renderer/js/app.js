@@ -1,9 +1,9 @@
 // Ponto de entrada da interface: liga os módulos e carrega o estado inicial.
 // Fala com o processo principal só via window.api (preload.js).
-import { $, status } from "./util.js";
+import { $ } from "./util.js";
 import { estado, acoes, PERIODOS, temFonte } from "./estado.js";
 import { PAGINAS, render, trocarAba } from "./telas.js";
-import { gerar, descreverResultado } from "./recomendacoes.js";
+import { gerar, descreverResultado, mostrarProgresso } from "./recomendacoes.js";
 import { montarFiltrosCuradoria } from "./curadoria.js";
 import { atualizarContador } from "./salvos.js";
 import { abrirConfig, atualizarFontes, ligarConfig } from "./config.js";
@@ -12,6 +12,8 @@ import { definirSituacao, ligarTelemetria, perguntarSeNecessario } from "./telem
 import { ligarAtualizacoes } from "./atualizacoes.js";
 import { aplicarTema, ligarAparencia } from "./aparencia.js";
 import { ligarBoasVindas } from "./boasvindas.js";
+import { ligarControlesRadio } from "./previas.js";
+import { ligarAtalhos } from "./atalhos.js";
 
 const UM_DIA = 24 * 60 * 60 * 1000;
 
@@ -23,10 +25,12 @@ ligarTelemetria();
 ligarAtualizacoes();
 ligarAparencia();
 ligarBoasVindas();
+ligarControlesRadio();
+ligarAtalhos();
 $("gerar").onclick = gerar;
 $("busca").addEventListener("input", render);
 document.querySelectorAll(".aba").forEach((b) => (b.onclick = () => trocarAba(b.dataset.aba)));
-window.api.aoProgresso((m) => status(m));
+window.api.aoProgresso((m) => mostrarProgresso(typeof m === "string" ? { texto: m } : m));
 
 // Mostra o último resultado guardado, com o período e a quantidade usados nele.
 function restaurarCache(cache) {

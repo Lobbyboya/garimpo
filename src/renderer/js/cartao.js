@@ -70,6 +70,7 @@ export function cartao(artista, modo, maior) {
   const r = { ...artista, sementes: artista.sementes || [] };
   const c = document.createElement("div");
   c.className = "card" + (modo === "salvo" && r.ouvido ? " ouvido" : "");
+  c.dataset.nome = r.nome; // para o rádio achar o cartão do artista que está tocando
   const linkSpotify = r.spotify || "https://open.spotify.com/search/" + encodeURIComponent(r.nome);
 
   const podeDispensar = modo !== "salvo";

@@ -333,3 +333,38 @@ body.primeira-vez #painel-voce, body.primeira-vez #painel-curadoria, body.primei
 .chip-artista { display: inline-flex; align-items: center; gap: 4px; background: var(--acento-fundo); color: var(--texto); border-radius: 999px; padding: 3px 4px 3px 11px; font-size: .88rem; }
 .chip-artista button { border: none; background: none; color: var(--suave); cursor: pointer; font-size: 1rem; line-height: 1; padding: 0 5px; border-radius: 50%; }
 .chip-artista button:hover { color: var(--texto); }
+
+/* Progresso do Garimpar */
+.progresso { height: 3px; background: var(--lateral); border-radius: 2px; overflow: hidden; margin: -2px 0 12px; }
+.progresso[hidden] { display: none; }
+.progresso > div { height: 100%; width: 0; background: var(--acento); border-radius: 2px; transition: width .4s ease; }
+.progresso.indeterminado > div { width: 30% !important; animation: indo 1.2s ease-in-out infinite; }
+@keyframes indo { from { transform: translateX(-100%); } to { transform: translateX(340%); } }
+
+/* Cartões fantasma (carregando) */
+.card.fantasma { min-height: 170px; gap: 10px; }
+.fantasma .f-foto { width: 54px; height: 54px; border-radius: 12px; }
+.fantasma .f-linhas { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.fantasma .f-linhas span, .fantasma .f-linha { height: 10px; border-radius: 5px; }
+.fantasma .f-linhas span:last-child { width: 40%; }
+.fantasma .f-linha.curta { width: 60%; }
+.fantasma .f-foto, .fantasma .f-linhas span, .fantasma .f-linha {
+  background: linear-gradient(90deg, var(--lateral) 25%, var(--card-hover) 50%, var(--lateral) 75%);
+  background-size: 200% 100%; animation: brilho 1.4s linear infinite;
+}
+@keyframes brilho { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+/* Rádio de prévias */
+.chip-radio { margin-left: auto; color: var(--acento) !important; border-color: var(--acento) !important; }
+.radio {
+  position: fixed; right: 24px; bottom: 24px; z-index: 9; display: flex; align-items: center; gap: 10px;
+  background: var(--card); border: 1px solid var(--linha-forte); border-radius: 14px; padding: 10px 12px;
+  box-shadow: 0 8px 28px rgb(0 0 0 / .25); max-width: min(420px, calc(100vw - 32px));
+}
+.radio[hidden] { display: none; }
+.radio-icone { color: var(--acento); font-size: 1.2rem; }
+.radio-texto { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.radio-texto strong, .radio-texto span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.radio-texto span { font-size: .8rem; color: var(--suave); }
+.radio-posicao { font-size: .75rem; color: var(--fraco); white-space: nowrap; }
+.card.tocando-agora { border-color: var(--acento); box-shadow: 0 0 0 3px var(--acento-fundo); }

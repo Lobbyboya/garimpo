@@ -8,7 +8,7 @@ const { limparTags } = require("./tags");
 // Com o Spotify conectado: link direto para a página do artista, foto e gênero.
 async function comSpotify(recs, token, progresso) {
   if (!token || !recs.length) return;
-  progresso("Procurando os artistas no Spotify...");
+  progresso("Procurando os artistas no Spotify...", 0.72);
   let parar = false;
   await emLotes(recs, 3, async (r) => {
     if (parar) return;
@@ -31,7 +31,7 @@ async function comSpotify(recs, token, progresso) {
 async function generosLastfm(recs, chaveLastfm, progresso) {
   const semGenero = recs.filter((r) => !r.genero);
   if (!chaveLastfm || !semGenero.length) return;
-  progresso("Descobrindo o estilo de cada recomendação...");
+  progresso("Descobrindo o estilo de cada recomendação...", 0.84);
   await emLotes(semGenero, 4, async (r) => {
     try {
       r.genero = limparTags(await lastfm.tags(chaveLastfm, r.nome))[0] || null;
@@ -46,7 +46,7 @@ async function generosLastfm(recs, chaveLastfm, progresso) {
 async function dadosDeezer(recs, progresso) {
   const faltando = recs.filter((r) => !r.img || r.fas == null || !r.deezer);
   if (!faltando.length) return;
-  progresso("Completando fotos e popularidade dos artistas...");
+  progresso("Completando fotos e popularidade dos artistas...", 0.9);
   await emLotes(faltando, 3, async (r) => {
     try {
       const a = await deezer.buscarArtista(r.nome);

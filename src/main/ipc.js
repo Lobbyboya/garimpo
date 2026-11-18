@@ -33,8 +33,9 @@ function registrarCanais() {
   // Recomendações
   ipcMain.handle("cache:get", () => recomendacoes.lerCache());
   ipcMain.handle("recs:gerar", (e, opcoes) =>
-    recomendacoes.gerar(opcoes, (msg) => {
-      if (!e.sender.isDestroyed()) e.sender.send("recs:progresso", msg); // a janela pode ter sido fechada
+    recomendacoes.gerar(opcoes, (texto, fracao) => {
+      // a janela pode ter sido fechada no meio
+      if (!e.sender.isDestroyed()) e.sender.send("recs:progresso", { texto, fracao: Number.isFinite(fracao) ? fracao : null });
     }));
   ipcMain.handle("faixas:top", (_e, artista) => previas.topFaixas(artista));
 

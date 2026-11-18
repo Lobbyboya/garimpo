@@ -103,6 +103,19 @@ Para adicionar ou ajustar um tema, edite as paletas em `scripts/gerar-temas.py`,
 `python3 scripts/gerar-temas.py` (gera `src/renderer/temas.css`) e inclua o nome em
 `src/renderer/js/aparencia.js`.
 
+## Ouvir e navegar
+
+- **Prévias**: cada cartão tem as 3 músicas mais tocadas do artista, com 30 segundos de áudio.
+- **Ouvir em sequência**: na aba "Para você", toca uma prévia de cada artista da lista, um depois do
+  outro, destacando o cartão. Respeita o filtro e a busca.
+- **Filtros**: "Novos" (nunca recomendados antes) e "Pouco conhecidos" (menos de 50 mil fãs no Deezer).
+- **Não curti**: o "×" do cartão tira o artista das recomendações de vez (dá para desfazer ou
+  restaurar em Configurações).
+- Quando o Garimpar termina com o app em segundo plano, chega uma notificação do sistema.
+
+Atalhos: `/` busca · `1` `2` `3` trocam de aba · `Espaço` pausa ou continua a prévia · `N` próximo
+artista na sequência · `Esc` limpa a busca.
+
 ## Salvos
 
 Toque no marcador de um cartão para guardar o artista na aba **Salvos**. As recomendações mudam

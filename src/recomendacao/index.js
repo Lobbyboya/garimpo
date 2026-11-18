@@ -10,6 +10,7 @@ const { agrupar } = require("./agrupar");
  * fontes: { lastfm: {apiKey, usuario} | null, spotifyToken: string | null, manual: string[] }
  * periodo: "curto" | "medio" | "longo"; sementes: quantas das mais fortes usar.
  * ignorar: nomes (normalizados) que a pessoa dispensou e não devem voltar.
+ * progresso(texto, fracao): avisa em que etapa está; fracao vai de 0 a 1 quando conhecida.
  */
 async function gerar({ fontes, periodo, sementes, ignorar, progresso = () => {} }) {
   const chaveLastfm = fontes.lastfm?.apiKey || null;
@@ -40,7 +41,7 @@ async function gerar({ fontes, periodo, sementes, ignorar, progresso = () => {} 
   await enriquecer.dadosDeezer(recs, progresso);
 
   if (!recs.length) avisos.push("Nenhum artista parecido foi encontrado para essas sementes.");
-  progresso(`Pronto: ${recs.length} recomendações.`);
+  progresso(`Pronto: ${recs.length} recomendações.`, 1);
   return {
     periodo,
     fontes: usadas,

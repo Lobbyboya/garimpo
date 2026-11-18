@@ -25,7 +25,7 @@ async function buscarSimilares(base, chaveLastfm, progresso) {
       return []; // um artista sem similares não derruba o resto
     } finally {
       feitos++;
-      progresso(`Buscando parecidos (${feitos}/${base.length}): ${semente.nome}`);
+      progresso(`Buscando parecidos (${feitos}/${base.length}): ${semente.nome}`, 0.12 + 0.58 * (feitos / base.length));
     }
   });
   return { listas, semConexao };

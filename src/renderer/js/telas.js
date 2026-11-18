@@ -2,7 +2,7 @@
 import { $ } from "./util.js";
 import { estado, temFonte } from "./estado.js";
 import { cartao } from "./cartao.js";
-import { pararPrevia } from "./previas.js";
+import { aoRedesenhar } from "./previas.js";
 import { renderSalvos } from "./salvos.js";
 import { renderParaVoce, estaGerando } from "./recomendacoes.js";
 import { renderCuradoria } from "./curadoria.js";
@@ -33,9 +33,8 @@ function mostrarVazio(n) {
   }
 }
 
-// Redesenha a aba atual (a grade é refeita, então a prévia tocando para junto).
+// Redesenha a aba atual. A prévia de um cartão para junto (o cartão é refeito); o rádio continua.
 export function render() {
-  pararPrevia();
   // Sem nenhuma fonte e sem resultado: a tela de boas-vindas no lugar das recomendações.
   const primeiraVez = estado.aba !== "salvos" && !estado.auto && !estaGerando() && !temFonte();
   document.body.classList.toggle("primeira-vez", primeiraVez);
@@ -45,6 +44,7 @@ export function render() {
     return;
   }
   mostrarVazio(DESENHAR[estado.aba]());
+  aoRedesenhar();
 }
 
 export function trocarAba(aba) {

@@ -20,15 +20,15 @@
     </div>
 
     <nav class="nav">
-      <button class="aba ativa" data-aba="voce">
+      <button class="aba ativa" data-aba="voce" title="Atalho: 1">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/></svg>
         Para você
       </button>
-      <button class="aba" data-aba="curadoria">
+      <button class="aba" data-aba="curadoria" title="Atalho: 2">
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>
         Curadoria
       </button>
-      <button class="aba" data-aba="salvos">
+      <button class="aba" data-aba="salvos" title="Atalho: 3">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h11v17l-5.5-4-5.5 4z"/></svg>
         Salvos
         <span class="contador" id="contSalvos" hidden></span>
@@ -63,7 +63,7 @@
     <div class="barra-ferramentas">
       <div class="campo-busca">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
-        <input type="search" id="busca" placeholder="Buscar por nome, gênero ou artista seu...">
+        <input type="search" id="busca" placeholder="Buscar por nome, gênero ou artista seu..." title="Atalho: /">
       </div>
       <div class="controles" id="controlesGerar">
         <select id="periodo" title="Período do seu histórico">
@@ -82,6 +82,7 @@
     </div>
 
     <div class="status" id="status"></div>
+    <div class="progresso" id="progresso" hidden><div></div></div>
     <div class="avisos" id="avisos"></div>
 
     <!-- Primeira vez, sem nenhuma fonte: recomendações em segundos, sem conta -->
@@ -119,6 +120,19 @@
 
     <div class="empty" id="empty">Nada encontrado com esse filtro.</div>
   </main>
+</div>
+
+<!-- Rádio de prévias (uma de cada recomendação, em sequência) -->
+<div class="radio" id="radio" hidden>
+  <span class="radio-icone" aria-hidden="true">♪</span>
+  <div class="radio-texto">
+    <strong id="radioArtista"></strong>
+    <span id="radioFaixa"></span>
+  </div>
+  <span class="radio-posicao" id="radioPosicao"></span>
+  <button class="tocar" id="radioPausar" type="button" title="Pausar ou continuar (espaço)">❚❚</button>
+  <button class="tocar" id="radioProxima" type="button" title="Próximo artista (N)">⏭</button>
+  <button class="tocar" id="radioParar" type="button" title="Parar a sequência">■</button>
 </div>
 
 <!-- Aviso flutuante com "Desfazer" (ex.: depois de "Não curti") -->
