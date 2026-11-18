@@ -9,7 +9,7 @@
   "private": true,
   "scripts": {
     "start": "electron .",
-    "test": "node --require ./test/ajuda/electron-falso.js --test test/",
+    "test": "node --require ./test/ajuda/electron-falso.js --test \"test/**/*.test.js\"",
     "icone": "electron scripts/gerar-icone.js",
     "instalador": "electron-builder --win nsis --publish never",
     "instalador:linux": "electron-builder --linux AppImage --publish never"

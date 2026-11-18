@@ -47,7 +47,7 @@ jobs:
               dist/latest-linux.yml
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ env.TAG }}
 
@@ -60,9 +60,9 @@ jobs:
             exit 1
           fi
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 24 # a mesma versão do Node que o Electron 45 usa
           cache: npm
 
       - run: npm ci
@@ -81,7 +81,7 @@ jobs:
     needs: instaladores
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ env.TAG }}
 
