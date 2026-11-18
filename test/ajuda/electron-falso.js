@@ -16,6 +16,7 @@ const electron = {
     getPath: (nome) => caminhos[nome],
     setPath: (nome, valor) => (caminhos[nome] = valor),
     getVersion: () => require("../../package.json").version,
+    isPackaged: false,
   },
   safeStorage: {
     isEncryptionAvailable: () => cofre.disponivel,

@@ -35,11 +35,16 @@ jobs:
           - nome: Windows
             os: windows-latest
             alvo: --win nsis
-            arquivos: dist/*.exe
+            arquivos: |
+              dist/*.exe
+              dist/*.exe.blockmap
+              dist/latest.yml
           - nome: Linux
             os: ubuntu-latest
             alvo: --linux AppImage
-            arquivos: dist/*.AppImage
+            arquivos: |
+              dist/*.AppImage
+              dist/latest-linux.yml
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4

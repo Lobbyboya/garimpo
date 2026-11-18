@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Garimpo
+GenericName=Recomendações de música
+Comment=Descubra artistas novos a partir do que você já ouve
+Exec=garimpo %U
+Icon=garimpo
+Terminal=false
+Type=Application
+Categories=Audio;AudioVideo;
+StartupWMClass=garimpo

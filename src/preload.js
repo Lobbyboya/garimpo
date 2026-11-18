@@ -28,6 +28,12 @@ contextBridge.exposeInMainWorld("api", {
   topFaixas: (artista) => ipcRenderer.invoke("faixas:top", artista),
   abrirLink: (url) => ipcRenderer.send("abrir-link", url),
   checarAtualizacao: () => ipcRenderer.invoke("updater:checar"),
+  instalarAtualizacao: () => ipcRenderer.invoke("updater:instalar"),
+  aoAtualizacaoPronta: (fn) => {
+    const ouvinte = (_e, info) => fn(info);
+    ipcRenderer.on("updater:pronta", ouvinte);
+    return () => ipcRenderer.removeListener("updater:pronta", ouvinte);
+  },
   aoNovaVersao: (fn) => {
     const ouvinte = (_e, info) => fn(info);
     ipcRenderer.on("updater:nova-versao", ouvinte);

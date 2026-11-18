@@ -9,6 +9,7 @@ const contas = require("./contas");
 const recomendacoes = require("./recomendacoes");
 const previas = require("./previas");
 const atualizacoes = require("./atualizacoes");
+const autoatualizacao = require("./autoatualizacao");
 const telemetria = require("./telemetria");
 const { abrirExterno } = require("./links");
 const { aplicarModo } = require("./aparencia");
@@ -61,7 +62,12 @@ function registrarCanais() {
   });
 
   // Atualizações e links
-  ipcMain.handle("updater:checar", () => atualizacoes.checarAtualizacao({ versaoAtual: app.getVersion() }));
+  ipcMain.handle("updater:checar", async () => {
+    const info = await atualizacoes.checarAtualizacao({ versaoAtual: app.getVersion() });
+    // Com atualização automática, a versão nova é baixada sozinha: a tela só avisa isso.
+    return { ...info, automatica: autoatualizacao.suportada(), pronta: autoatualizacao.versaoPronta() };
+  });
+  ipcMain.handle("updater:instalar", () => autoatualizacao.instalarAgora());
   ipcMain.on("abrir-link", (_e, url) => abrirExterno(url));
 
   // Estatísticas de uso (opcionais)

@@ -4,6 +4,7 @@ const arquivos = require("../dados/arquivos");
 const { registrarCanais } = require("./ipc");
 const { criarJanela } = require("./janela");
 const atualizacoes = require("./atualizacoes");
+const autoatualizacao = require("./autoatualizacao");
 const telemetria = require("./telemetria");
 const config = require("../dados/config");
 const { aplicarModo } = require("./aparencia");
@@ -23,7 +24,8 @@ if (!unica) {
 
 function abrirJanela() {
   janela = criarJanela();
-  atualizacoes.checarEmSegundoPlano(janela, app.getVersion());
+  // Instalado: baixa e instala sozinho. Pelo código ou pacote do sistema: só avisa, com link.
+  if (!autoatualizacao.iniciar(janela)) atualizacoes.checarEmSegundoPlano(janela, app.getVersion());
 }
 
 function iniciar() {

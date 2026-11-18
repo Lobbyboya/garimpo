@@ -1,0 +1,24 @@
+pkgbase = garimpo-bin
+	pkgdesc = Descubra artistas novos a partir do que você ouve no Spotify, no Last.fm ou numa lista
+	pkgver = 1.3.0
+	pkgrel = 1
+	url = https://github.com/Lobbyboya/garimpo
+	arch = x86_64
+	license = MIT
+	depends = gtk3
+	depends = nss
+	depends = alsa-lib
+	depends = libsecret
+	provides = garimpo
+	conflicts = garimpo
+	noextract = Garimpo-1.3.0.AppImage
+	options = !strip
+	options = !debug
+	source = Garimpo-1.3.0.AppImage::https://github.com/Lobbyboya/garimpo/releases/download/v1.3.0/Garimpo-1.3.0.AppImage
+	source = LICENSE-1.3.0::https://raw.githubusercontent.com/Lobbyboya/garimpo/v1.3.0/LICENSE
+	source = garimpo.desktop
+	sha256sums = 4c0ff075c14b53fe4a81d0543e85b6ed4534bed69f4187d4830d31e0b6647f5e
+	sha256sums = 83c14493af1225f43da59692a17161c565f6ce347bc98c2ee1c4e022345c4dcd
+	sha256sums = 7efb1da61f353efca51ea3924999bd57a720ada54ba201e1339aa28d6a485aec
+
+pkgname = garimpo-bin

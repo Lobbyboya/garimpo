@@ -64,6 +64,26 @@ npm test
 Os testes usam um Electron e um `fetch` falsos (em `test/ajuda/`), então não abrem o app nem
 acessam a internet. Eles rodam no GitHub a cada envio e antes de cada release.
 
+## Instalar
+
+- **Windows**: baixe o `Garimpo-Setup-<versão>.exe` na [última release](https://github.com/Lobbyboya/garimpo/releases/latest).
+  O instalador não é assinado, então o Windows pode mostrar um aviso do SmartScreen ("Mais informações" → "Executar assim mesmo").
+- **Linux (qualquer distro)**: baixe o `Garimpo-<versão>.AppImage`, dê permissão de execução e abra.
+- **Arch Linux / CachyOS**: o pacote `garimpo-bin` está em `packaging/aur/`. Para publicar no AUR, veja abaixo.
+
+No instalador do Windows e no AppImage, o app se atualiza sozinho: baixa a versão nova em segundo
+plano e mostra "Reiniciar e atualizar". No pacote do AUR, quem atualiza é o `pacman`/`yay`, e o app só avisa.
+
+### Publicar no AUR
+
+1. Crie uma conta em https://aur.archlinux.org e cadastre a sua chave SSH nela.
+2. Troque o e-mail da linha `Maintainer` em `packaging/aur/PKGBUILD`.
+3. `git clone ssh://aur@aur.archlinux.org/garimpo-bin.git`, copie `PKGBUILD`, `.SRCINFO` e
+   `garimpo.desktop` para dentro, faça o commit e o push.
+
+A cada versão nova: troque `pkgver`, volte `pkgrel=1`, rode `updpkgsums` e
+`makepkg --printsrcinfo > .SRCINFO`.
+
 ## Instalador e ícone
 
 - `npm run instalador`: gera `dist/Garimpo Setup 1.0.0.exe`, que instala o app e cria atalhos na
