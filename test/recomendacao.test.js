@@ -61,3 +61,13 @@ test("gerar (Last.fm): completa fãs e link do Deezer de quem veio do Last.fm", 
   const r = await gerar({ fontes: { lastfm: { apiKey: "k", usuario: "u" } }, periodo: "longo", sementes: 3 });
   assert.ok(r.recs.every((x) => x.fas === 500 && x.deezer?.startsWith("https://www.deezer.com/")));
 });
+
+test("gerar (Deezer): com a chave do app, a Curadoria ganha gêneros mesmo sem usuário do Last.fm", async () => {
+  instalarFetch(apisMusicais);
+  const sem = await gerar({ fontes: { manual: ["Radiohead", "Bjork"] }, periodo: "longo", sementes: 5 });
+  assert.equal(sem.grupos.length, 0, "sem chave: sem gêneros");
+  const com = await gerar({ fontes: { manual: ["Radiohead", "Bjork"], chaveTags: "k" }, periodo: "longo", sementes: 5 });
+  assert.equal(com.motor, "Deezer", "os parecidos continuam vindo do Deezer");
+  assert.ok(com.grupos.length > 0);
+  assert.ok(com.recs.every((r) => r.genero));
+});

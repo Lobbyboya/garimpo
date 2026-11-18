@@ -40,6 +40,7 @@ async function gerar(opcoes, progresso) {
       fontes: {
         spotifyToken,
         lastfm: temLastfm ? { apiKey: chave, usuario: atual.usuario } : null,
+        chaveTags: chave || null, // gêneros da Curadoria mesmo sem usuário do Last.fm
         manual: atual.manual,
       },
       ...escolhas,

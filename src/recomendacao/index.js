@@ -7,13 +7,16 @@ const enriquecer = require("./enriquecer");
 const { agrupar } = require("./agrupar");
 
 /**
- * fontes: { lastfm: {apiKey, usuario} | null, spotifyToken: string | null, manual: string[] }
+ * fontes: { lastfm: {apiKey, usuario} | null, spotifyToken: string | null, manual: string[],
+ *           chaveTags: chave do Last.fm só para buscar gêneros, sem usuário (opcional) }
  * periodo: "curto" | "medio" | "longo"; sementes: quantas das mais fortes usar.
  * ignorar: nomes (normalizados) que a pessoa dispensou e não devem voltar.
  * progresso(texto, fracao): avisa em que etapa está; fracao vai de 0 a 1 quando conhecida.
  */
 async function gerar({ fontes, periodo, sementes, ignorar, progresso = () => {} }) {
-  const chaveLastfm = fontes.lastfm?.apiKey || null;
+  const chaveLastfm = fontes.lastfm?.apiKey || null; // Last.fm como fonte de gosto e de parecidos
+  // Gêneros (para a Curadoria) podem vir do Last.fm mesmo sem usuário, com a chave do app.
+  const chaveTags = chaveLastfm || fontes.chaveTags || null;
 
   const { pesos, usadas, avisos } = await coletarSementes(fontes, periodo, progresso);
   if (!pesos.size) {
@@ -23,7 +26,7 @@ async function gerar({ fontes, periodo, sementes, ignorar, progresso = () => {} 
   }
 
   const base = maisFortes(pesos, sementes);
-  await completarGeneros(base, chaveLastfm, progresso);
+  await completarGeneros(base, chaveTags, progresso);
   const grupos = agrupar(base);
   const grupoDe = new Map(grupos.flatMap((g) => g.artistas.map((nome) => [nome, g.nome])));
 
@@ -37,7 +40,7 @@ async function gerar({ fontes, periodo, sementes, ignorar, progresso = () => {} 
   for (const r of recs) r.grupo = grupoDe.get(r.sementes[0]) || null; // grupo do artista seu que mais puxou
 
   await enriquecer.comSpotify(recs, fontes.spotifyToken, progresso);
-  await enriquecer.generosLastfm(recs, chaveLastfm, progresso);
+  await enriquecer.generosLastfm(recs, chaveTags, progresso);
   await enriquecer.dadosDeezer(recs, progresso);
 
   if (!recs.length) avisos.push("Nenhum artista parecido foi encontrado para essas sementes.");
