@@ -1,11 +1,18 @@
 # Garimpo
 
 [![Testes](https://github.com/Lobbyboya/garimpo/actions/workflows/testes.yml/badge.svg)](https://github.com/Lobbyboya/garimpo/actions/workflows/testes.yml)
+[![Última versão](https://img.shields.io/github/v/release/Lobbyboya/garimpo)](https://github.com/Lobbyboya/garimpo/releases/latest)
+
+*[Read in English](README.en.md)*
 
 App de desktop (Electron) que garimpa artistas novos a partir do que você já ouve.
 Cada pessoa usa as próprias contas; nada sai do seu computador além das consultas às APIs.
 
-![Aba Para você do Garimpo, com cartões de artistas recomendados](docs/para-voce.png)
+![Aba Para você: artistas recomendados com barra de afinidade, selos "Novo" e filtros](docs/para-voce.png)
+
+| Curadoria pelos seus grupos de gosto | Temas |
+|---|---|
+| ![Aba Curadoria](docs/curadoria.png) | ![Escolha de tema](docs/temas.png) |
 
 ## De onde vem o seu gosto musical
 
