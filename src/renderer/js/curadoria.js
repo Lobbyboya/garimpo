@@ -2,13 +2,14 @@
 import { $, combina, termoBusca } from "./util.js";
 import { estado, acoes } from "./estado.js";
 import { cartao } from "./cartao.js";
+import { visiveis } from "./dispensados.js";
 
 const POR_GRUPO = 8;
 
 const gruposAtuais = () => estado.auto?.grupos || [];
 
 function listaCuradoria() {
-  const recs = estado.auto.recs;
+  const recs = visiveis(estado.auto.recs);
   if (estado.grupoAtivo) return recs.filter((r) => r.grupo === estado.grupoAtivo);
   // "Todos": os melhores de cada grupo, intercalados, para nenhum estilo dominar a tela.
   const filas = gruposAtuais().map((g) => recs.filter((r) => r.grupo === g.nome).slice(0, POR_GRUPO));

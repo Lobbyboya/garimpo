@@ -1,6 +1,7 @@
 // Aba "Para você" (ranking geral) e o botão Garimpar.
 import { $, combina, limparErro, status, termoBusca } from "./util.js";
-import { estado, acoes, PERIODOS, temFonte } from "./estado.js";
+import { estado, acoes, PERIODOS, POUCO_CONHECIDO, temFonte } from "./estado.js";
+import { visiveis } from "./dispensados.js";
 import { cartao } from "./cartao.js";
 import { atualizarFontes } from "./config.js";
 import { montarFiltrosCuradoria } from "./curadoria.js";
@@ -8,13 +9,46 @@ import { montarFiltrosCuradoria } from "./curadoria.js";
 let gerando = false;
 export const estaGerando = () => gerando;
 
+const FILTROS = {
+  todos: { nome: "Todos", aceita: () => true },
+  novos: { nome: "Novos", aceita: (r) => r.novo, dica: "Nunca recomendados antes" },
+  "pouco-conhecidos": {
+    nome: "Pouco conhecidos",
+    aceita: (r) => Number.isFinite(r.fas) && r.fas < POUCO_CONHECIDO,
+    dica: `Menos de ${POUCO_CONHECIDO.toLocaleString("pt-BR")} fãs no Deezer: garimpo profundo`,
+  },
+};
+
+// Chips com a contagem de cada filtro (escondidos quando não há recomendações).
+function montarFiltros(recs) {
+  const box = $("filtrosVoce");
+  box.innerHTML = "";
+  if (!recs.length) return;
+  for (const [id, f] of Object.entries(FILTROS)) {
+    const n = recs.filter(f.aceita).length;
+    if (id !== "todos" && n === 0 && estado.filtroVoce !== id) continue;
+    const b = document.createElement("button");
+    b.className = "chip" + (estado.filtroVoce === id ? " active" : "");
+    b.textContent = id === "todos" ? f.nome : `${f.nome} (${n})`;
+    if (f.dica) b.title = f.dica;
+    b.onclick = () => {
+      estado.filtroVoce = id;
+      acoes.render();
+    };
+    box.appendChild(b);
+  }
+}
+
 export function renderParaVoce() {
   const grid = $("grid-voce");
   grid.innerHTML = "";
   if (!estado.auto) return 0;
+  const recs = visiveis(estado.auto.recs);
+  montarFiltros(recs);
   const termo = termoBusca();
-  const lista = estado.auto.recs.filter((r) => combina(r, termo));
-  const maior = estado.auto.recs[0]?.pontos || 1;
+  const filtro = FILTROS[estado.filtroVoce] || FILTROS.todos;
+  const lista = recs.filter((r) => filtro.aceita(r) && combina(r, termo));
+  const maior = recs[0]?.pontos || 1;
   for (const r of lista) grid.appendChild(cartao(r, "ranking", maior));
   return lista.length;
 }
@@ -27,7 +61,9 @@ export function descreverResultado() {
   const de = a.fontes?.length ? ` (${a.fontes.join(" + ")})` : "";
   const motor = a.motor ? `, parecidos via ${a.motor}` : "";
   const artistas = a.sementes.length === 1 ? "1 artista seu" : `${a.sementes.length} artistas seus`;
-  status(`${a.recs.length} recomendações a partir de ${artistas}${de}, ${PERIODOS[a.periodo] || "longo prazo"}${motor}. Geradas em ${quando}.`);
+  const novos = a.recs.filter((r) => r.novo).length;
+  const comNovos = novos ? ` (${novos} ${novos === 1 ? "nova" : "novas"})` : "";
+  status(`${a.recs.length} recomendações${comNovos} a partir de ${artistas}${de}, ${PERIODOS[a.periodo] || "longo prazo"}${motor}. Geradas em ${quando}.`);
   $("avisos").textContent = (a.avisos || []).join(" ");
 }
 

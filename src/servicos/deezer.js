@@ -29,7 +29,7 @@ function foto(artista) {
 }
 
 function converter(a) {
-  return { id: a.id, nome: a.name, foto: foto(a), link: a.link };
+  return { id: a.id, nome: a.name, foto: foto(a), link: a.link, fas: Number.isFinite(a.nb_fan) ? a.nb_fan : null };
 }
 
 // Entre os do mesmo nome, o mais conhecido (há vários "Air" no Deezer; o certo tem mais fãs).

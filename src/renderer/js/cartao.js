@@ -2,8 +2,21 @@
 import { esc } from "./util.js";
 import { alternarFaixas } from "./previas.js";
 import { aindaRecomendado, alternarSalvo, marcarOuvido, pintarBotaoSalvar } from "./salvos.js";
+import { dispensar } from "./dispensados.js";
 
 const ICONE_SALVAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h11v17l-5.5-4-5.5 4z"/></svg>';
+const ICONE_DISPENSAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+
+const compacto = new Intl.NumberFormat("pt-BR", { notation: "compact", maximumFractionDigits: 1 });
+
+// Selo "Novo", gênero e fãs embaixo do nome.
+function detalhes(r) {
+  const partes = [];
+  if (r.novo) partes.push('<span class="selo">Novo</span>');
+  if (r.genero) partes.push(`<span class="tag">${esc(r.genero)}</span>`);
+  if (Number.isFinite(r.fas)) partes.push(`<span class="fas" title="Fãs no Deezer">${esc(compacto.format(r.fas))} fãs</span>`);
+  return partes.join(" ");
+}
 
 function foto(r) {
   return r.img
@@ -59,13 +72,17 @@ export function cartao(artista, modo, maior) {
   c.className = "card" + (modo === "salvo" && r.ouvido ? " ouvido" : "");
   const linkSpotify = r.spotify || "https://open.spotify.com/search/" + encodeURIComponent(r.nome);
 
+  const podeDispensar = modo !== "salvo";
   c.innerHTML = `
-    <button class="salvar" type="button">${ICONE_SALVAR}</button>
+    <div class="acoes-cartao">
+      ${podeDispensar ? `<button class="dispensar" type="button" title="Não curti: não mostrar mais" aria-label="Não curti">${ICONE_DISPENSAR}</button>` : ""}
+      <button class="salvar" type="button">${ICONE_SALVAR}</button>
+    </div>
     <div class="head">
       ${foto(r)}
       <div>
         <h3>${esc(r.nome)}</h3>
-        ${r.genero ? `<span class="tag">${esc(r.genero)}</span>` : ""}
+        <div class="detalhes">${detalhes(r)}</div>
       </div>
     </div>
     ${MEIOS[modo](r)}
@@ -80,6 +97,7 @@ export function cartao(artista, modo, maior) {
   const salvar = c.querySelector(".salvar");
   pintarBotaoSalvar(salvar, r.nome);
   salvar.onclick = () => alternarSalvo(r, salvar);
+  if (podeDispensar) c.querySelector(".dispensar").onclick = () => dispensar(r);
   if (modo === "salvo") {
     c.querySelector(".marcar").onclick = () => marcarOuvido(r);
     c.querySelector(".remover").onclick = () => alternarSalvo(r, salvar);

@@ -35,9 +35,11 @@ function restaurarCache(cache) {
 }
 
 (async function iniciar() {
-  const [config, cache, salvos, telemetria] = await Promise.all([
+  const [config, cache, salvos, telemetria, dispensados] = await Promise.all([
     window.api.lerConfig(), window.api.lerCache(), window.api.listarSalvos(), window.api.telemetriaSituacao(),
+    window.api.listarDispensados(),
   ]);
+  estado.dispensados = dispensados || [];
   estado.config = config;
   aplicarTema(config.aparencia?.tema);
   estado.salvos = salvos || [];

@@ -22,6 +22,7 @@ const EVENTOS = {
   salvo_adicionado: { aba: "texto" },
   salvo_removido: { aba: "texto" },
   salvo_ouvido: { ouvido: "bool" },
+  artista_dispensado: { aba: "texto" },
   previas_abertas: {},
   previa_tocada: {},
   link_aberto: { destino: "texto" },

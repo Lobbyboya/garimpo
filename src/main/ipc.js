@@ -3,6 +3,7 @@
 const { app, ipcMain } = require("electron");
 const config = require("../dados/config");
 const salvos = require("../dados/salvos");
+const dispensados = require("../dados/dispensados");
 const { textoCurto } = require("../comum/texto");
 const contas = require("./contas");
 const recomendacoes = require("./recomendacoes");
@@ -47,6 +48,14 @@ function registrarCanais() {
   ipcMain.handle("salvos:ouvido", (_e, { nome, ouvido } = {}) => {
     const { lista, alterado } = salvos.marcarOuvido(nome, ouvido);
     if (alterado) telemetria.registrar("salvo_ouvido", { ouvido: Boolean(ouvido) });
+    return lista;
+  });
+
+  // Dispensados ("Não curti")
+  ipcMain.handle("dispensados:listar", () => dispensados.listar());
+  ipcMain.handle("dispensados:alternar", (_e, { nome, aba } = {}) => {
+    const { lista, dispensado } = dispensados.alternar(nome);
+    if (dispensado) telemetria.registrar("artista_dispensado", { aba: textoCurto(aba, 20) });
     return lista;
   });
 

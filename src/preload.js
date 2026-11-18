@@ -18,6 +18,8 @@ contextBridge.exposeInMainWorld("api", {
   },
   listarSalvos: () => ipcRenderer.invoke("salvos:listar"),
   alternarSalvo: (artista) => ipcRenderer.invoke("salvos:alternar", artista),
+  listarDispensados: () => ipcRenderer.invoke("dispensados:listar"),
+  alternarDispensado: (nome, aba) => ipcRenderer.invoke("dispensados:alternar", { nome, aba }),
   marcarOuvido: (nome, ouvido) => ipcRenderer.invoke("salvos:ouvido", { nome, ouvido }),
   telemetriaSituacao: () => ipcRenderer.invoke("telemetria:situacao"),
   telemetriaEscolher: (sim) => ipcRenderer.invoke("telemetria:escolher", sim),

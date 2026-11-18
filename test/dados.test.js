@@ -60,3 +60,22 @@ test("salvos: salva, marca como ouvido e remove; links perigosos são descartado
   assert.deepEqual(r.lista, []);
   assert.throws(() => salvos.alternar({}), /sem nome/);
 });
+
+test("dispensados: dispensa, lista e restaura (sem diferenciar maiúsculas)", () => {
+  const dispensados = require("../src/dados/dispensados");
+  assert.equal(dispensados.alternar(" Air ").dispensado, true);
+  assert.ok(dispensados.nomes().has("air"));
+  const r = dispensados.alternar("AIR");
+  assert.equal(r.dispensado, false);
+  assert.deepEqual(r.lista, []);
+});
+
+test("histórico: primeira vez ninguém é 'novo'; depois, só quem nunca apareceu", () => {
+  const historico = require("../src/dados/historico");
+  const primeira = [{ nome: "A" }, { nome: "B" }];
+  historico.marcarNovos(primeira);
+  assert.deepEqual(primeira.map((r) => r.novo), [false, false]);
+  const segunda = [{ nome: "b" }, { nome: "C" }];
+  historico.marcarNovos(segunda);
+  assert.deepEqual(segunda.map((r) => r.novo), [false, true]);
+});

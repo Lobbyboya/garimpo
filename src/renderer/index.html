@@ -86,6 +86,7 @@
 
     <!-- Ranking geral das recomendações -->
     <section id="painel-voce">
+      <div class="filters" id="filtrosVoce"></div>
       <div class="grid" id="grid-voce"></div>
     </section>
 
@@ -104,6 +105,12 @@
 
     <div class="empty" id="empty">Nada encontrado com esse filtro.</div>
   </main>
+</div>
+
+<!-- Aviso flutuante com "Desfazer" (ex.: depois de "Não curti") -->
+<div class="aviso-flutuante" id="avisoFlutuante" role="status" hidden>
+  <span id="avisoTexto"></span>
+  <button class="textual" id="avisoDesfazer" type="button">Desfazer</button>
 </div>
 
 <!-- Configurações -->
@@ -145,6 +152,12 @@
     <label>Um por linha. Serve sozinho ou junto com as outras fontes.
       <textarea id="cfgManual" rows="4" spellcheck="false" placeholder="Ex.:&#10;Nujabes&#10;Turnstile"></textarea>
     </label>
+  </section>
+
+  <section class="bloco">
+    <h3>Artistas dispensados</h3>
+    <div class="estado" id="contDispensados"></div>
+    <ul class="dispensados" id="listaDispensados"></ul>
   </section>
 
   <section class="bloco" id="blocoTelemetria" hidden>

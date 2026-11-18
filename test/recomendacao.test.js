@@ -46,3 +46,18 @@ test("agrupar: junta por gênero mais forte e manda o resto para Outros", () => 
   assert.deepEqual(grupos.map((g) => g.nome), ["Indie", "Outros"]);
   assert.deepEqual(grupos[1].artistas, ["c", "d"]);
 });
+
+test("gerar: artistas dispensados não voltam, e cada recomendação traz os fãs no Deezer", async () => {
+  instalarFetch(apisMusicais);
+  const antes = await gerar({ fontes: { manual: ["Radiohead"] }, periodo: "longo", sementes: 5 });
+  const alvo = antes.recs[0].nome;
+  const depois = await gerar({ fontes: { manual: ["Radiohead"] }, periodo: "longo", sementes: 5, ignorar: new Set([alvo.toLowerCase()]) });
+  assert.ok(!depois.recs.some((r) => r.nome === alvo));
+  assert.ok(depois.recs.every((r) => Number.isFinite(r.fas)), "fãs preenchidos");
+});
+
+test("gerar (Last.fm): completa fãs e link do Deezer de quem veio do Last.fm", async () => {
+  instalarFetch(apisMusicais);
+  const r = await gerar({ fontes: { lastfm: { apiKey: "k", usuario: "u" } }, periodo: "longo", sementes: 3 });
+  assert.ok(r.recs.every((x) => x.fas === 500 && x.deezer?.startsWith("https://www.deezer.com/")));
+});

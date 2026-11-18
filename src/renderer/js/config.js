@@ -3,6 +3,7 @@ import { $, msg } from "./util.js";
 import { estado, acoes, temFonte, temLastfm } from "./estado.js";
 import { pintarTelemetria } from "./telemetria.js";
 import { pintarAparencia } from "./aparencia.js";
+import { pintarDispensados } from "./dispensados.js";
 
 // "Garimpando a partir de Spotify (nome), Last.fm (usuário)." na barra lateral.
 export function atualizarFontes() {
@@ -48,6 +49,7 @@ export function abrirConfig() {
   msg("telMsg", "");
   pintarTelemetria();
   pintarAparencia();
+  pintarDispensados();
   msg("spMsg", "");
   pintarConfig();
   if (!$("config").open) $("config").showModal();

@@ -2,6 +2,8 @@
 // registra a estatística do uso.
 const recomendacao = require("../recomendacao");
 const config = require("../dados/config");
+const dispensados = require("../dados/dispensados");
+const historico = require("../dados/historico");
 const { caminho } = require("../dados/arquivos");
 const { lerJson, salvarJson } = require("../comum/json");
 const contas = require("./contas");
@@ -40,6 +42,7 @@ async function gerar(opcoes, progresso) {
         manual: atual.manual,
       },
       ...escolhas,
+      ignorar: dispensados.nomes(),
       progresso,
     });
   } catch (erro) {
@@ -55,6 +58,7 @@ async function gerar(opcoes, progresso) {
     erro: false,
   });
 
+  historico.marcarNovos(resultado.recs);
   const cache = { ...resultado, opcoes: escolhas, avisos: [...avisos, ...resultado.avisos], geradoEm: new Date().toISOString() };
   salvarJson(caminho("cache.json"), cache);
   return cache;

@@ -9,8 +9,9 @@ const { agrupar } = require("./agrupar");
 /**
  * fontes: { lastfm: {apiKey, usuario} | null, spotifyToken: string | null, manual: string[] }
  * periodo: "curto" | "medio" | "longo"; sementes: quantas das mais fortes usar.
+ * ignorar: nomes (normalizados) que a pessoa dispensou e não devem voltar.
  */
-async function gerar({ fontes, periodo, sementes, progresso = () => {} }) {
+async function gerar({ fontes, periodo, sementes, ignorar, progresso = () => {} }) {
   const chaveLastfm = fontes.lastfm?.apiKey || null;
 
   const { pesos, usadas, avisos } = await coletarSementes(fontes, periodo, progresso);
@@ -31,12 +32,12 @@ async function gerar({ fontes, periodo, sementes, progresso = () => {} }) {
   if (semConexao === base.length) {
     throw new Error(`Não foi possível falar com o ${chaveLastfm ? "Last.fm" : "Deezer"} para buscar artistas parecidos. Confira a sua conexão e tente de novo.`);
   }
-  const recs = pontuar(base, listas, pesos);
+  const recs = pontuar(base, listas, pesos, ignorar);
   for (const r of recs) r.grupo = grupoDe.get(r.sementes[0]) || null; // grupo do artista seu que mais puxou
 
   await enriquecer.comSpotify(recs, fontes.spotifyToken, progresso);
   await enriquecer.generosLastfm(recs, chaveLastfm, progresso);
-  await enriquecer.fotosDeezer(recs, progresso);
+  await enriquecer.dadosDeezer(recs, progresso);
 
   if (!recs.length) avisos.push("Nenhum artista parecido foi encontrado para essas sementes.");
   progresso(`Pronto: ${recs.length} recomendações.`);

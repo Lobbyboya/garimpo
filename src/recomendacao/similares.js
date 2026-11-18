@@ -19,7 +19,7 @@ async function buscarSimilares(base, chaveLastfm, progresso) {
       if (!artista) return [];
       const rel = await deezer.relacionados(artista.id);
       // O Deezer só dá a ordem: o 1º relacionado vale 1 e o último 0,4.
-      return rel.map((r, i) => ({ nome: r.nome, match: 1 - 0.6 * (i / rel.length), img: r.foto, deezer: r.link }));
+      return rel.map((r, i) => ({ nome: r.nome, match: 1 - 0.6 * (i / rel.length), img: r.foto, deezer: r.link, fas: r.fas }));
     } catch (e) {
       if (e.semConexao) semConexao++;
       return []; // um artista sem similares não derruba o resto
@@ -32,22 +32,24 @@ async function buscarSimilares(base, chaveLastfm, progresso) {
 }
 
 /**
- * Cada parecido soma `similaridade × peso da semente`. Quem a pessoa já ouve (está em `pesos`)
- * fica de fora. Devolve as melhores recomendações, já no formato que vai para a tela.
+ * Cada parecido soma `similaridade × peso da semente`. Ficam de fora quem a pessoa já ouve
+ * (está em `pesos`) e quem ela dispensou (`ignorar`, nomes normalizados). Devolve as melhores
+ * recomendações, já no formato que vai para a tela.
  */
-function pontuar(base, similares, pesos) {
+function pontuar(base, similares, pesos, ignorar = new Set()) {
   const pontos = new Map();
   base.forEach((semente, i) => {
     for (const s of similares[i]) {
       const chave = normalizar(s.nome);
-      if (pesos.has(chave)) continue; // a pessoa já ouve
+      if (pesos.has(chave) || ignorar.has(chave)) continue; // já ouve ou dispensou
       const contribuicao = s.match * semente.peso;
-      const atual = pontos.get(chave) || { nome: s.nome, pontos: 0, sementes: [], img: null, lastfm: null, deezer: null };
+      const atual = pontos.get(chave) || { nome: s.nome, pontos: 0, sementes: [], img: null, lastfm: null, deezer: null, fas: null };
       atual.pontos += contribuicao;
       atual.sementes.push({ nome: semente.nome, peso: contribuicao });
       atual.img = atual.img || s.img || null;
       atual.lastfm = atual.lastfm || s.lastfm || null;
       atual.deezer = atual.deezer || s.deezer || null;
+      atual.fas = atual.fas ?? s.fas ?? null;
       pontos.set(chave, atual);
     }
   });
@@ -66,6 +68,8 @@ function pontuar(base, similares, pesos) {
       spotifyDireto: false,
       lastfm: r.lastfm,
       deezer: r.deezer,
+      fas: r.fas, // fãs no Deezer, para o filtro "pouco conhecidos"
+      novo: false, // marcado depois, comparando com o histórico
     }));
 }
 

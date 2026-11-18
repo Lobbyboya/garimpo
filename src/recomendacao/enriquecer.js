@@ -41,18 +41,23 @@ async function generosLastfm(recs, chaveLastfm, progresso) {
   });
 }
 
-// Quem ficou sem foto: a do Deezer.
-async function fotosDeezer(recs, progresso) {
-  const semFoto = recs.filter((r) => !r.img);
-  if (!semFoto.length) return;
-  progresso("Buscando fotos dos artistas...");
-  await emLotes(semFoto, 3, async (r) => {
+// Completa pelo Deezer o que faltou: foto, número de fãs (para "pouco conhecidos") e o link do
+// artista lá (que deixa as prévias certeiras). Um artista que falhar não atrapalha os outros.
+async function dadosDeezer(recs, progresso) {
+  const faltando = recs.filter((r) => !r.img || r.fas == null || !r.deezer);
+  if (!faltando.length) return;
+  progresso("Completando fotos e popularidade dos artistas...");
+  await emLotes(faltando, 3, async (r) => {
     try {
-      r.img = (await deezer.buscarArtista(r.nome))?.foto || null;
+      const a = await deezer.buscarArtista(r.nome);
+      if (!a) return;
+      r.img = r.img || a.foto;
+      r.fas = r.fas ?? a.fas;
+      r.deezer = r.deezer || a.link;
     } catch {
-      // sem foto: o cartão mostra a inicial
+      // sem dados extras: o cartão mostra a inicial e fica fora do filtro "pouco conhecidos"
     }
   });
 }
 
-module.exports = { comSpotify, generosLastfm, fotosDeezer };
+module.exports = { comSpotify, generosLastfm, dadosDeezer };

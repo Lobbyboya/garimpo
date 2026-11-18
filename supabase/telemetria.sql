@@ -10,7 +10,8 @@ create table if not exists public.eventos (
   instalacao  uuid        not null,
   evento      text        not null check (evento in (
                 'app_aberto', 'garimpo', 'aba_aberta', 'salvo_adicionado', 'salvo_removido',
-                'salvo_ouvido', 'previas_abertas', 'previa_tocada', 'link_aberto')),
+                'salvo_ouvido', 'previas_abertas', 'previa_tocada', 'link_aberto',
+                'artista_dispensado')),
   dados       jsonb       not null default '{}'::jsonb check (pg_column_size(dados) <= 2048),
   versao      text        not null check (char_length(versao) <= 20),
   sistema     text        not null check (sistema in ('win32', 'linux', 'darwin')),
