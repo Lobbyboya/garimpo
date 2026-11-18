@@ -308,3 +308,28 @@ button.amostra.ativa { border-color: var(--acento); }
 .dispensados { list-style: none; margin: 0; padding: 0; max-height: 160px; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
 .dispensados:empty { display: none; }
 .dispensados li { display: flex; justify-content: space-between; align-items: center; font-size: .86rem; padding: 2px 0; }
+
+/* Guia do Last.fm: com a chave que vem no app, só o usuário (a chave própria é opcional) */
+#guiaLastfm:not(.com-chave) .so-chave { display: none; }
+#guiaLastfm.com-chave .so-usuario, #guiaLastfm.com-chave #lfUsarPropria { display: none; }
+#guiaLastfm:not(.com-chave) .passos { padding-left: 0; list-style: none; }
+
+/* Boas-vindas (primeira vez, sem fonte) */
+.boas-vindas { display: none; max-width: 620px; margin: 8vh auto 0; text-align: center; }
+body.primeira-vez .boas-vindas { display: block; }
+body.primeira-vez .barra-ferramentas, body.primeira-vez #status, body.primeira-vez #avisos,
+body.primeira-vez #painel-voce, body.primeira-vez #painel-curadoria, body.primeira-vez .topo { display: none; }
+.boas-vindas h2 { font-family: var(--serifa); font-weight: 500; font-size: 2rem; letter-spacing: -.015em; margin: 0 0 8px; }
+.boas-vindas .descricao { margin-bottom: 24px; }
+.boas-vindas form { display: flex; gap: 8px; align-items: stretch; }
+.boas-vindas .ajuda { margin-top: 18px; }
+.boas-vindas .ajuda .textual { font-size: inherit; padding: 0; }
+.campo-artistas {
+  flex: 1; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; text-align: left; cursor: text;
+  background: var(--campo); border: 1px solid var(--linha); border-radius: 10px; padding: 6px 8px; min-height: 44px;
+}
+.campo-artistas:focus-within { border-color: var(--acento); box-shadow: 0 0 0 3px var(--acento-fundo); }
+.campo-artistas input { flex: 1; min-width: 160px; border: none; background: none; padding: 4px; box-shadow: none !important; }
+.chip-artista { display: inline-flex; align-items: center; gap: 4px; background: var(--acento-fundo); color: var(--texto); border-radius: 999px; padding: 3px 4px 3px 11px; font-size: .88rem; }
+.chip-artista button { border: none; background: none; color: var(--suave); cursor: pointer; font-size: 1rem; line-height: 1; padding: 0 5px; border-radius: 50%; }
+.chip-artista button:hover { color: var(--texto); }

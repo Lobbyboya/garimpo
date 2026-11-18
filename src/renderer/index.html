@@ -84,6 +84,20 @@
     <div class="status" id="status"></div>
     <div class="avisos" id="avisos"></div>
 
+    <!-- Primeira vez, sem nenhuma fonte: recomendações em segundos, sem conta -->
+    <section class="boas-vindas" id="boasVindas">
+      <h2>Diga 3 artistas de que você gosta</h2>
+      <p class="descricao">O Garimpo acha artistas parecidos que você ainda não conhece. Não precisa de conta.</p>
+      <form id="formBoasVindas" autocomplete="off">
+        <div class="campo-artistas" id="campoArtistas">
+          <input type="text" id="entradaArtista" placeholder="Ex.: Radiohead, depois Enter" spellcheck="false" aria-label="Artista de que você gosta">
+        </div>
+        <button class="botao" id="garimparBoasVindas" type="submit" disabled>Garimpar</button>
+      </form>
+      <p class="ajuda">Depois, para recomendações a partir do que você realmente ouve, conecte o
+        <button class="textual" type="button" data-abrir-config>Last.fm ou o Spotify</button> em Configurações.</p>
+    </section>
+
     <!-- Ranking geral das recomendações -->
     <section id="painel-voce">
       <div class="filters" id="filtrosVoce"></div>
@@ -143,7 +157,7 @@
     <div class="estado" id="lfEstado"></div>
     <div class="acoes esquerda">
       <button class="botao secundario" id="lfGuia">Configurar passo a passo</button>
-      <button class="textual" id="lfRemover">Remover chave</button>
+      <button class="textual" id="lfRemover">Desconectar</button>
     </div>
   </section>
 
@@ -212,14 +226,15 @@
 
 <!-- Guia: chave do Last.fm -->
 <dialog id="guiaLastfm">
-  <h2>Sua chave do Last.fm</h2>
-  <p class="ajuda">Com o Last.fm o Garimpo usa o seu histórico de scrobbles e a similaridade do próprio Last.fm. A chave é grátis e leva uns 2 minutos.</p>
+  <h2>Conectar o Last.fm</h2>
+  <p class="ajuda so-chave">Com o Last.fm o Garimpo usa o seu histórico de scrobbles e a similaridade do próprio Last.fm. A chave é grátis e leva uns 2 minutos.</p>
+  <p class="ajuda so-usuario">Com o Last.fm o Garimpo usa o seu histórico de scrobbles e a similaridade do próprio Last.fm. Basta o seu nome de usuário: não precisa de senha nem de chave.</p>
   <ol class="passos">
-    <li>
+    <li class="so-chave">
       <b>Abra a página de criação da chave.</b> Entre na sua conta do Last.fm se o site pedir.
       <div><button class="botao" id="lfAbrirSite">Abrir o site do Last.fm</button></div>
     </li>
-    <li>
+    <li class="so-chave">
       <b>Preencha o formulário assim:</b>
       <ul>
         <li><i>Application name:</i> Garimpo</li>
@@ -228,19 +243,20 @@
       </ul>
       Marque "I'm not a robot" e clique em <b>Submit</b>.
     </li>
-    <li>
+    <li class="so-chave">
       <b>Copie a "API key".</b> A página seguinte mostra dois códigos. Você só precisa do primeiro, a <i>API key</i> (32 letras e números). O <i>Shared secret</i> não é usado: não cole aqui nem compartilhe.
     </li>
     <li>
-      <b>Cole aqui e teste.</b>
+      <b class="so-chave">Cole aqui e teste.</b>
       <label>Seu usuário do Last.fm
         <input type="text" id="lfUsuario" autocomplete="off" spellcheck="false" placeholder="o nome que aparece em last.fm/user/...">
       </label>
-      <label>API key
+      <label class="so-chave">API key
         <input type="password" id="lfChave" autocomplete="off" spellcheck="false">
       </label>
     </li>
   </ol>
+  <button class="textual" id="lfUsarPropria" type="button">Usar uma chave de API própria</button>
   <div class="msg" id="lfMsg"></div>
   <div class="acoes">
     <button class="botao secundario" id="lfFechar">Fechar</button>

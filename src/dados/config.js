@@ -8,6 +8,15 @@ const { REDIRECT } = require("../servicos/spotify-login");
 // O Client ID não é segredo (o login usa PKCE), mas o Spotify limita cada um a 5 usuários.
 const SPOTIFY_CLIENT_ID_PADRAO = "";
 
+// Chave de API do Last.fm que já vem no app. Preenchida, a pessoa só digita o usuário do Last.fm.
+// A chave é da aplicação, não da pessoa, e o app só lê dados públicos (top artistas, similares,
+// tags). Crie em https://www.last.fm/api/account/create com a SUA conta. A variável de ambiente
+// serve para testes.
+const LASTFM_CHAVE_PADRAO = process.env.GARIMPO_LASTFM_CHAVE || "";
+
+// A chave própria da pessoa, se ela tiver colado uma; senão a do app.
+const chaveLastfm = (config) => config.apiKey || LASTFM_CHAVE_PADRAO;
+
 const PADRAO = { apiKey: "", usuario: "", spotifyClientId: "", spotify: null, manual: [], aparencia: null };
 
 const MODOS = ["sistema", "claro", "escuro"];
@@ -40,7 +49,9 @@ function publico(config = ler()) {
   return {
     versao: app.getVersion(),
     usuario: config.usuario,
-    temChave: Boolean(config.apiKey),
+    temChave: Boolean(chaveLastfm(config)),
+    temChavePropria: Boolean(config.apiKey),
+    temChavePadraoLastfm: Boolean(LASTFM_CHAVE_PADRAO),
     spotifyClientId: config.spotifyClientId,
     temClientIdPadrao: Boolean(SPOTIFY_CLIENT_ID_PADRAO),
     spotifyConectado: Boolean(config.spotify?.refresh),
@@ -79,4 +90,4 @@ function atualizarCampos(dados = {}) {
   });
 }
 
-module.exports = { ler, salvar, alterar, clientIdSpotify, publico, atualizarCampos, limparAparencia };
+module.exports = { ler, salvar, alterar, clientIdSpotify, chaveLastfm, publico, atualizarCampos, limparAparencia };

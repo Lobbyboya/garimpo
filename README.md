@@ -12,9 +12,18 @@ Cada pessoa usa as próprias contas; nada sai do seu computador além das consul
 Use pelo menos uma das três fontes, em **Configurações**:
 
 - **Spotify**: você entra com a sua conta e o app lê os seus top artistas (permissão `user-top-read`).
-- **Last.fm** (opcional): usuário e chave de API. O app tem um guia passo a passo que abre o site
-  certo e explica o que preencher.
-- **Lista manual** (opcional): digite alguns artistas de que você gosta.
+- **Last.fm** (opcional): só o nome de usuário, quando o app vem com a chave de API embutida
+  (veja abaixo). Sem ela, o guia passo a passo ajuda a criar uma chave própria.
+- **Lista manual** (opcional): digite alguns artistas de que você gosta. É o que a tela de
+  boas-vindas pede na primeira vez, e já funciona sem conta nenhuma.
+
+### Chave do Last.fm embutida (para quem distribui o app)
+
+Crie uma chave em https://www.last.fm/api/account/create com a sua conta (nome "Garimpo",
+callbacks vazios) e cole a **API key** em `LASTFM_CHAVE_PADRAO`, em `src/dados/config.js`. A chave
+é da aplicação e o app só lê dados públicos, então ela pode ir no instalador; o *Shared secret*
+não é usado e não deve ser colado. Para testar sem editar o código:
+`GARIMPO_LASTFM_CHAVE=... npm start`.
 
 Os artistas parecidos vêm do Last.fm quando há chave configurada. Sem chave, vêm dos
 "artistas relacionados" do Deezer, que é público e não precisa de conta. As fotos vêm do Deezer.

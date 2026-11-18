@@ -29,8 +29,8 @@ export function pintarConfig() {
   const lf = $("lfEstado");
   lf.textContent = temLastfm() ? `Configurado para o usuário ${c.usuario}.` : "Não configurado. Sem ele, os artistas parecidos vêm do Deezer.";
   lf.classList.toggle("ok", temLastfm());
-  $("lfGuia").textContent = temLastfm() ? "Trocar usuário ou chave" : "Configurar passo a passo";
-  $("lfRemover").hidden = !c.temChave;
+  $("lfGuia").textContent = temLastfm() ? "Trocar usuário" : c.temChavePadraoLastfm ? "Conectar o Last.fm" : "Configurar passo a passo";
+  $("lfRemover").hidden = !temLastfm();
 
   $("updEstado").textContent = `Garimpo v${c.versao || "1.0.0"}`;
 }

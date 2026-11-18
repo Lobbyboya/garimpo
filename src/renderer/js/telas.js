@@ -1,5 +1,5 @@
 // Troca de abas e o desenho da aba atual.
-import { $, status } from "./util.js";
+import { $ } from "./util.js";
 import { estado, temFonte } from "./estado.js";
 import { cartao } from "./cartao.js";
 import { pararPrevia } from "./previas.js";
@@ -36,8 +36,15 @@ function mostrarVazio(n) {
 // Redesenha a aba atual (a grade é refeita, então a prévia tocando para junto).
 export function render() {
   pararPrevia();
+  // Sem nenhuma fonte e sem resultado: a tela de boas-vindas no lugar das recomendações.
+  const primeiraVez = estado.aba !== "salvos" && !estado.auto && !estaGerando() && !temFonte();
+  document.body.classList.toggle("primeira-vez", primeiraVez);
+  if (primeiraVez) {
+    $("empty").style.display = "none";
+    if (estado.aba === "voce") $("entradaArtista").focus();
+    return;
+  }
   mostrarVazio(DESENHAR[estado.aba]());
-  if (!estado.auto && !estaGerando() && !temFonte()) status("Abra Configurações e escolha de onde o Garimpo tira o seu gosto musical.");
 }
 
 export function trocarAba(aba) {

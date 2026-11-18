@@ -89,19 +89,25 @@ const desconectarSpotify = () => config.publico(config.alterar((c) => (c.spotify
 
 // ---------- Last.fm ----------
 
-// Confere se a chave e o usuário funcionam antes de salvar. Chave vazia = a que já está salva.
+// Confere se a chave e o usuário funcionam antes de salvar. Chave vazia = a que já está salva
+// ou, se não houver, a que vem no app (aí a pessoa só informa o usuário).
 async function testarLastfm({ apiKey, usuario } = {}) {
-  const chave = String(apiKey || "").trim() || config.ler().apiKey;
+  const propria = String(apiKey || "").trim();
+  const chave = propria || config.chaveLastfm(config.ler());
   const nome = String(usuario || "").trim();
   if (!chave) throw new Error("Cole a sua API key.");
   if (!nome) throw new Error("Informe o seu usuário do Last.fm.");
   await lastfm.topArtistas(chave, nome, "overall", 1);
   return config.publico(config.alterar((c) => {
-    c.apiKey = chave;
+    if (propria) c.apiKey = propria; // a do app não é copiada para a config
     c.usuario = nome;
   }));
 }
 
-const removerLastfm = () => config.publico(config.alterar((c) => (c.apiKey = "")));
+// Desconecta o Last.fm: tira a chave própria e o usuário.
+const removerLastfm = () => config.publico(config.alterar((c) => {
+  c.apiKey = "";
+  c.usuario = "";
+}));
 
 module.exports = { tokenSpotify, conectarSpotify, cancelarLoginSpotify, desconectarSpotify, testarLastfm, removerLastfm };

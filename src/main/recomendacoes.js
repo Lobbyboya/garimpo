@@ -29,7 +29,8 @@ async function gerar(opcoes, progresso) {
   }
 
   const escolhas = escolhasDe(opcoes);
-  const temLastfm = Boolean(atual.apiKey && atual.usuario);
+  const chave = config.chaveLastfm(atual);
+  const temLastfm = Boolean(chave && atual.usuario);
   const fontesLigadas = [spotifyToken && "spotify", temLastfm && "lastfm", atual.manual?.length && "manual"].filter(Boolean);
   const inicio = Date.now();
 
@@ -38,7 +39,7 @@ async function gerar(opcoes, progresso) {
     resultado = await recomendacao.gerar({
       fontes: {
         spotifyToken,
-        lastfm: temLastfm ? { apiKey: atual.apiKey, usuario: atual.usuario } : null,
+        lastfm: temLastfm ? { apiKey: chave, usuario: atual.usuario } : null,
         manual: atual.manual,
       },
       ...escolhas,

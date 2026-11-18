@@ -11,6 +11,7 @@ import { ligarContas } from "./contas.js";
 import { definirSituacao, ligarTelemetria, perguntarSeNecessario } from "./telemetria.js";
 import { ligarAtualizacoes } from "./atualizacoes.js";
 import { aplicarTema, ligarAparencia } from "./aparencia.js";
+import { ligarBoasVindas } from "./boasvindas.js";
 
 const UM_DIA = 24 * 60 * 60 * 1000;
 
@@ -21,6 +22,7 @@ ligarContas();
 ligarTelemetria();
 ligarAtualizacoes();
 ligarAparencia();
+ligarBoasVindas();
 $("gerar").onclick = gerar;
 $("busca").addEventListener("input", render);
 document.querySelectorAll(".aba").forEach((b) => (b.onclick = () => trocarAba(b.dataset.aba)));
@@ -51,10 +53,7 @@ function restaurarCache(cache) {
   montarFiltrosCuradoria();
   render();
 
-  if (!temFonte()) {
-    abrirConfig();
-    return;
-  }
+  if (!temFonte()) return; // a tela de boas-vindas já aparece no lugar das recomendações
   perguntarSeNecessario();
   // Curadoria dinâmica: refaz sozinha se o último resultado tem mais de um dia (ou é de uma versão antiga).
   const idade = cache?.geradoEm ? Date.now() - new Date(cache.geradoEm).getTime() : Infinity;

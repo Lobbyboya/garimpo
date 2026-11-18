@@ -44,7 +44,7 @@ async function testarLastfm() {
   msg("lfMsg", "Testando com o Last.fm...");
   try {
     configMudou(await window.api.testarLastfm({ apiKey: chave, usuario: $("lfUsuario").value }));
-    msg("lfMsg", "Funcionou. Chave e usuário salvos.", "ok");
+    msg("lfMsg", "Funcionou. Last.fm conectado.", "ok");
     setTimeout(() => $("guiaLastfm").close(), 900);
   } catch (e) {
     msg("lfMsg", limparErro(e), "erro");
@@ -81,12 +81,16 @@ export function ligarContas() {
 
   // Last.fm
   $("lfGuia").onclick = () => {
-    $("lfUsuario").value = estado.config.usuario;
+    const c = estado.config;
+    $("lfUsuario").value = c.usuario;
     $("lfChave").value = "";
-    $("lfChave").placeholder = estado.config.temChave ? "Deixe vazio para manter a chave atual" : "Cole a API key aqui";
+    $("lfChave").placeholder = c.temChavePropria ? "Deixe vazio para manter a chave atual" : "Cole a API key aqui";
+    // Com a chave que vem no app, o guia pede só o usuário (a não ser que a pessoa já use a sua).
+    $("guiaLastfm").classList.toggle("com-chave", !c.temChavePadraoLastfm || c.temChavePropria);
     msg("lfMsg", "");
     $("guiaLastfm").showModal();
   };
+  $("lfUsarPropria").onclick = () => $("guiaLastfm").classList.add("com-chave");
   $("lfAbrirSite").onclick = () => window.api.abrirLink(URL_LASTFM);
   $("lfFechar").onclick = () => $("guiaLastfm").close();
   $("lfTestar").onclick = testarLastfm;
