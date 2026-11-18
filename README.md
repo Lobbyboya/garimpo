@@ -1,5 +1,7 @@
 # Garimpo
 
+[![Testes](https://github.com/Lobbyboya/garimpo/actions/workflows/testes.yml/badge.svg)](https://github.com/Lobbyboya/garimpo/actions/workflows/testes.yml)
+
 App de desktop (Electron) que garimpa artistas novos a partir do que você já ouve.
 Cada pessoa usa as próprias contas; nada sai do seu computador além das consultas às APIs.
 
@@ -43,6 +45,15 @@ Para abrir o app:
 ```bash
 npm start
 ```
+
+## Testes
+
+```bash
+npm test
+```
+
+Os testes usam um Electron e um `fetch` falsos (em `test/ajuda/`), então não abrem o app nem
+acessam a internet. Eles rodam no GitHub a cada envio e antes de cada release.
 
 ## Instalador e ícone
 

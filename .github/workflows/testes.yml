@@ -1,0 +1,22 @@
+# Roda os testes a cada envio para a main e em todo Pull Request.
+name: Testes
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_call: # usado pelo workflow de release antes de gerar os instaladores
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+        env:
+          ELECTRON_SKIP_BINARY_DOWNLOAD: "1" # os testes não abrem o app
+      - run: npm test

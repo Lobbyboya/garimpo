@@ -22,8 +22,12 @@ env:
   TAG: ${{ github.event.inputs.tag || github.ref_name }}
 
 jobs:
+  testes:
+    uses: ./.github/workflows/testes.yml
+
   instaladores:
     name: Instalador ${{ matrix.nome }}
+    needs: testes
     strategy:
       fail-fast: false
       matrix:
