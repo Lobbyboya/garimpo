@@ -5,6 +5,27 @@ e as versões seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/
 
 Ao publicar uma versão, o texto da seção dela vira as notas da release no GitHub.
 
+## [Não lançado]
+
+### Novidades
+- Tela de boas-vindas: diga 3 artistas de que você gosta e receba recomendações na hora, sem conta.
+- Last.fm só com o nome de usuário, quando o app vem com a chave de API embutida.
+- Selo **Novo** nos artistas nunca recomendados antes, e filtro **Pouco conhecidos** (menos de
+  50 mil fãs no Deezer) para garimpar fundo.
+- Botão **Não curti**: o artista sai das recomendações de vez, com "Desfazer" e lista para restaurar.
+- **Ouvir em sequência**: uma prévia de 30 segundos de cada artista da lista, uma depois da outra.
+- Barra de progresso e cartões de carregamento no Garimpar, e notificação quando termina em segundo plano.
+- Atalhos de teclado: `/` busca, `1`–`3` abas, `Espaço` pausa, `N` próximo, `Esc` limpa a busca.
+- Atualização automática no Windows e no AppImage ("Reiniciar e atualizar").
+- Pacote para o AUR (Arch Linux).
+
+### Correções
+- A Curadoria agora tem grupos também quando você usa só a lista de artistas.
+
+### Por dentro
+- 41 testes automáticos rodando no GitHub a cada envio; a release só sai se passarem.
+- README em inglês e capturas de tela atualizadas.
+
 ## [1.3.0] - 2026-11-17
 
 ### Novidades
